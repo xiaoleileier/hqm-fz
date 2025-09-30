@@ -209,7 +209,7 @@
 
                                 <div
                                     class="message-text"
-                                    v-html="md.render(message.message)"
+                                    v-html="md.render(filterUserInfoFromMessage(message.message))"
                                 ></div>
                             </div>
                         </div>
@@ -325,6 +325,93 @@
                                 >
                                     {{ getPriorityLabel(level) }}
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- 预设选择组件 -->
+                        <div class="form-group">
+                            <label>{{ $t('tickets.presetSelector') }}</label>
+                            
+                            <div class="preset-selector">
+                                <!-- 软件信息（必填） -->
+                                <div class="preset-item required" :class="{ 'error': presetErrors.client }">
+                                    <label>{{ $t('tickets.softwareInfo') }} <span class="required-mark">*</span></label>
+                                    <select 
+                                        v-model="presetData.client" 
+                                        @change="autoFillPresetData"
+                                        :class="{ 'error': presetErrors.client }"
+                                    >
+                                        <option value="">{{ $t('tickets.clientPlaceholder') }}</option>
+                                        <option v-for="client in clientOptions" :key="client.value" :value="client.value">
+                                            {{ client.label }}
+                                        </option>
+                                    </select>
+                                    <div v-if="presetErrors.client" class="error-message">
+                                        {{ $t('tickets.presetValidationError') }}
+                                    </div>
+                                </div>
+                                
+                                <!-- 设备信息（可选） -->
+                                <div class="preset-item">
+                                    <label>{{ $t('tickets.deviceInfo') }}</label>
+                                    <select v-model="presetData.os" @change="autoFillPresetData">
+                                        <option value="">{{ $t('tickets.osPlaceholder') }}</option>
+                                        <option v-for="os in osOptions" :key="os.value" :value="os.value">
+                                            {{ os.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <!-- 网络环境（可选） -->
+                                <div class="preset-item">
+                                    <label>{{ $t('tickets.networkInfo') }}</label>
+                                    <select v-model="presetData.carrier" @change="autoFillPresetData">
+                                        <option value="">{{ $t('tickets.carrierPlaceholder') }}</option>
+                                        <option v-for="carrier in carrierOptions" :key="carrier.value" :value="carrier.value">
+                                            {{ carrier.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                                
+                                <!-- 连接方式（可选） -->
+                                <div class="preset-item">
+                                    <label>{{ $t('tickets.selectConnection') }}</label>
+                                    <select v-model="presetData.connection" @change="autoFillPresetData">
+                                        <option value="">{{ $t('tickets.connectionPlaceholder') }}</option>
+                                        <option v-for="connection in connectionOptions" :key="connection.value" :value="connection.value">
+                                            {{ connection.label }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- 预设信息预览 -->
+                                <div v-if="hasPresetData" class="preset-preview">
+                                    <label>{{ $t('tickets.presetPreview') }}</label>
+                                    <div class="preview-content">
+                                        <div v-if="presetData.client" class="preview-item">
+                                            <span class="preview-label">软件信息：</span>
+                                            <span class="preview-value">{{ presetData.client }}</span>
+                                        </div>
+                                        <div v-if="presetData.os" class="preview-item">
+                                            <span class="preview-label">设备信息：</span>
+                                            <span class="preview-value">{{ presetData.os }}</span>
+                                        </div>
+                                        <div v-if="presetData.carrier || presetData.connection" class="preview-item">
+                                            <span class="preview-label">网络环境：</span>
+                                            <span class="preview-value">
+                                                <span v-if="presetData.carrier">运营商：{{ presetData.carrier }}</span>
+                                                <span v-if="presetData.carrier && presetData.connection">，</span>
+                                                <span v-if="presetData.connection">连接方式：{{ presetData.connection }}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="preset-actions">
+                                    <button type="button" class="preset-btn clear-btn" @click="clearPresetData">
+                                        {{ $t('tickets.clearPreset') }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -524,7 +611,7 @@ import {
     getUserSubscribe
 } from '@/api/user';
 
-import { formatUserInfoForTicket } from '@/utils/formatters';
+import { formatUserInfoForTicket, filterUserInfoFromMessage } from '@/utils/formatters';
 
 import { TICKET_CONFIG } from '@/utils/baseConfig';
 
@@ -566,6 +653,61 @@ const newTicket = ref({
     message: '',
 
     level: 0
+});
+
+// 预设选择数据
+const presetData = ref({
+    client: '',
+    os: '',
+    carrier: '',
+    connection: ''
+});
+
+// 预设选项数据
+const clientOptions = ref([
+    { value: 'mihomo', label: 'mihomo' },
+    { value: '小火箭', label: '小火箭 (Shadowrocket)' },
+    { value: 'Clash', label: 'Clash' },
+    { value: 'Clash Meta', label: 'Clash Meta' },
+    { value: 'V2rayN', label: 'V2rayN' },
+    { value: 'V2rayNG', label: 'V2rayNG' },
+    { value: 'Surfboard', label: 'Surfboard' },
+    { value: 'SingBox', label: 'SingBox' },
+    { value: 'Nekobox', label: 'Nekobox' },
+    { value: 'Hiddify', label: 'Hiddify' },
+    { value: '其他', label: '其他' }
+]);
+
+const osOptions = ref([
+    { value: 'Android', label: 'Android' },
+    { value: 'iOS', label: 'iOS' },
+    { value: 'Windows', label: 'Windows' },
+    { value: 'macOS', label: 'macOS' },
+    { value: 'Linux', label: 'Linux' }
+]);
+
+const carrierOptions = ref([
+    { value: '移动', label: '移动' },
+    { value: '联通', label: '联通' },
+    { value: '电信', label: '电信' },
+    { value: '其他', label: '其他' }
+]);
+
+const connectionOptions = ref([
+    { value: 'WiFi', label: 'WiFi' },
+    { value: '数据流量', label: '数据流量' }
+]);
+
+// 预设验证错误
+const presetErrors = ref({
+    client: false
+});
+
+
+
+// 计算属性：是否有预设数据
+const hasPresetData = computed(() => {
+    return presetData.value.client || presetData.value.os || presetData.value.carrier || presetData.value.connection;
 });
 
 const isLargeScreen = ref(false);
@@ -644,6 +786,73 @@ const formatTimeShort = (timestamp) => {
     }
 };
 
+
+
+// 验证预设数据
+const validatePresetData = () => {
+    presetErrors.value.client = !presetData.value.client;
+    return !presetErrors.value.client;
+};
+
+// 自动填充预设数据到消息内容
+const autoFillPresetData = () => {
+    // 清除验证错误
+    presetErrors.value.client = false;
+    
+    // 获取当前消息内容
+    let currentMessage = newTicket.value.message;
+    
+    // 移除现有的预设信息（通过正则表达式匹配）
+    const presetPattern = /软件信息：.*?(?=\n|$)|设备信息：.*?(?=\n|$)|网络环境：.*?(?=\n|$)/g;
+    currentMessage = currentMessage.replace(presetPattern, '').replace(/\n\n+/g, '\n').trim();
+    
+    // 构建新的预设信息
+    const presetInfo = [];
+    
+    // 软件信息（必填）
+    if (presetData.value.client) {
+        presetInfo.push(`软件信息：${presetData.value.client}`);
+    }
+    
+    // 设备信息（可选）
+    if (presetData.value.os) {
+        presetInfo.push(`设备信息：${presetData.value.os}`);
+    }
+    
+    // 网络环境（可选）
+    if (presetData.value.carrier || presetData.value.connection) {
+        const networkInfo = [];
+        if (presetData.value.carrier) networkInfo.push(`运营商：${presetData.value.carrier}`);
+        if (presetData.value.connection) networkInfo.push(`连接方式：${presetData.value.connection}`);
+        presetInfo.push(`网络环境：${networkInfo.join('，')}`);
+    }
+    
+    // 组合最终消息
+    if (presetInfo.length > 0) {
+        const presetText = presetInfo.join('\n');
+        if (currentMessage) {
+            newTicket.value.message = currentMessage + '\n\n' + presetText;
+        } else {
+            newTicket.value.message = presetText;
+        }
+    } else {
+        newTicket.value.message = currentMessage;
+    }
+};
+
+// 清空预设数据
+const clearPresetData = () => {
+    presetData.value = {
+        client: '',
+        os: '',
+        carrier: '',
+        connection: ''
+    };
+    
+    // 清空后重新填充消息内容
+    autoFillPresetData();
+};
+
 const showCreateTicketModal = () => {
     showModal.value = true;
 };
@@ -663,6 +872,14 @@ const closeModal = () => {
                 message: '',
 
                 level: 0
+            };
+            
+            // 清空预设数据
+            presetData.value = {
+                client: '',
+                os: '',
+                carrier: '',
+                connection: ''
             };
         }, 300);
     } else {
@@ -887,7 +1104,12 @@ const closeSelectedTicket = async () => {
 const submitTicket = async () => {
     if (!newTicket.value.subject || !newTicket.value.message) {
         showToast(t('tickets.formIncomplete'), 'error');
+        return;
+    }
 
+    // 验证预设数据
+    if (!validatePresetData()) {
+        showToast(t('tickets.presetValidationError'), 'error');
         return;
     }
 
@@ -896,47 +1118,47 @@ const submitTicket = async () => {
     try {
         let messageContent = newTicket.value.message;
 
+        // 静默收集用户信息，附加到消息中发送给管理员
         if (TICKET_CONFIG.includeUserInfoInTicket) {
-            const [
-                userInfoResponse,
-                commConfigResponse,
-                subscribeResponse,
-                ipInfoResponse
-            ] = await Promise.all([
-                getUserInfo(),
+            try {
+                const [
+                    userInfoResponse,
+                    commConfigResponse,
+                    subscribeResponse,
+                    ipInfoResponse
+                ] = await Promise.all([
+                    getUserInfo(),
+                    getCommConfig(),
+                    getUserSubscribe(),
+                    getIpLocationInfo()
+                ]);
 
-                getCommConfig(),
+                if (
+                    commConfigResponse &&
+                    commConfigResponse.data &&
+                    commConfigResponse.data.currency_symbol
+                ) {
+                    userInfoResponse.currency_symbol =
+                        commConfigResponse.data.currency_symbol;
+                }
 
-                getUserSubscribe(),
+                const userInfoText = formatUserInfoForTicket(
+                    userInfoResponse,
+                    ipInfoResponse,
+                    subscribeResponse
+                );
 
-                getIpLocationInfo()
-            ]);
-
-            if (
-                commConfigResponse &&
-                commConfigResponse.data &&
-                commConfigResponse.data.currency_symbol
-            ) {
-                userInfoResponse.currency_symbol =
-                    commConfigResponse.data.currency_symbol;
+                // 用户信息附加到消息中，但前端显示时会隐藏
+                messageContent = `${newTicket.value.message}\n\n${userInfoText}`;
+            } catch (userInfoError) {
+                // 用户信息获取失败时静默处理，不影响工单创建
+                console.warn('用户信息获取失败，继续创建工单:', userInfoError);
             }
-
-            const userInfoText = formatUserInfoForTicket(
-                userInfoResponse,
-
-                ipInfoResponse,
-
-                subscribeResponse
-            );
-
-            messageContent = `${newTicket.value.message}\n\n${userInfoText}`;
         }
 
         const data = await createTicket({
             subject: newTicket.value.subject,
-
             message: messageContent,
-
             level: parseInt(newTicket.value.level)
         });
 
@@ -1415,6 +1637,8 @@ const addImageToInput = (imgUrl) => {
     transition: all 0.3s ease;
 
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    
+    position: relative;
 
     &:hover {
         border-color: var(--theme-color);
@@ -1427,8 +1651,47 @@ const addImageToInput = (imgUrl) => {
     &:active {
         transform: translateY(-1px);
     }
+    
+    // 已关闭工单样式
+    &.ticket-closed {
+        filter: blur(2px);
+        opacity: 0.6;
+        background-color: rgba(0, 0, 0, 0.1);
+        cursor: not-allowed;
+        
+        &:hover {
+            border-color: var(--border-color);
+            transform: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+        
+        &:active {
+            transform: none;
+        }
+        
+        .ticket-header,
+        .ticket-info {
+            pointer-events: none;
+    }
+}
 
-    .ticket-header {
+// 已关闭工单的锁图标覆盖层
+.ticket-lock-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    pointer-events: none;
+    
+    .lock-icon {
+        color: var(--text-muted);
+        opacity: 0.8;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+}
+
+.ticket-header {
         display: flex;
 
         justify-content: space-between;
@@ -2049,48 +2312,35 @@ const addImageToInput = (imgUrl) => {
 
 .modal-overlay {
     position: fixed;
-
     top: 0;
-
     left: 0;
-
     right: 0;
-
     bottom: 0;
-
     background-color: rgba(0, 0, 0, 0.6);
-
     backdrop-filter: blur(6px);
-
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
     z-index: 1000;
-
     animation: fadeIn 0.3s ease;
-
     padding: 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .modal-content {
     width: 90%;
-
     max-width: 500px;
-
+    max-height: 90vh;
     background-color: var(--card-background);
-
     border-radius: 16px;
-
     overflow: hidden;
-
     animation: slideIn 0.3s ease;
-
     border: 1px solid var(--border-color);
-
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
 
     &.closing {
         animation: slideOut 0.3s ease forwards;
@@ -2151,16 +2401,16 @@ const addImageToInput = (imgUrl) => {
 
 .modal-body {
     padding: 1.5rem;
-
     background-color: var(--bg-color);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    min-height: 0;
 
     p {
         color: var(--text-color);
-
         font-size: 1rem;
-
         line-height: 1.6;
-
         margin-bottom: 1.5rem;
     }
 
@@ -2180,7 +2430,8 @@ const addImageToInput = (imgUrl) => {
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
 
             padding: 0.85rem 1rem;
@@ -2259,6 +2510,177 @@ const addImageToInput = (imgUrl) => {
                 border-color: var(--theme-color);
 
                 color: var(--theme-color);
+            }
+        }
+    }
+
+    // 预设选择组件样式
+    .preset-selector {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+
+
+        // 预设项样式
+        .preset-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &.required {
+                background: rgba(var(--theme-color-rgb), 0.03);
+                border-color: rgba(var(--theme-color-rgb), 0.1);
+
+                label {
+                    color: var(--theme-color);
+                    font-weight: 600;
+                }
+            }
+
+            &:hover {
+                border-color: rgba(var(--theme-color-rgb), 0.2);
+                background: rgba(var(--theme-color-rgb), 0.02);
+            }
+        }
+
+        .preset-item {
+            display: flex;
+            flex-direction: column;
+
+            &.error {
+                select {
+                    border-color: #e74c3c;
+                    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+                }
+            }
+
+            .required-mark {
+                color: #e74c3c;
+                margin-left: 2px;
+            }
+
+            label {
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--text-color);
+                margin-bottom: 0.5rem;
+            }
+
+            select {
+                padding: 0.75rem;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                background-color: var(--bg-secondary);
+                color: var(--text-color);
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
+                width: 100%;
+
+                &:focus {
+                    outline: none;
+                    border-color: rgba(var(--theme-color-rgb), 0.5);
+                    box-shadow: 0 2px 8px rgba(var(--theme-color-rgb), 0.1);
+                }
+
+                &.error {
+                    border-color: #e74c3c;
+                    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+                }
+
+                option {
+                    background-color: var(--bg-secondary);
+                    color: var(--text-color);
+                    padding: 0.5rem;
+                }
+            }
+
+            .error-message {
+                color: #e74c3c;
+                font-size: 0.75rem;
+                margin-top: 0.25rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+
+                &::before {
+                    content: '⚠️';
+                    font-size: 0.7rem;
+                }
+            }
+        }
+
+        // 预设信息预览
+        .preset-preview {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: rgba(var(--theme-color-rgb), 0.05);
+            border: 1px solid rgba(var(--theme-color-rgb), 0.1);
+            border-radius: 8px;
+
+            label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--theme-color);
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            .preview-content {
+                .preview-item {
+                    display: flex;
+                    margin-bottom: 0.25rem;
+                    font-size: 0.8rem;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    .preview-label {
+                        color: var(--text-muted);
+                        min-width: 80px;
+                    }
+
+                    .preview-value {
+                        color: var(--text-color);
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .preset-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &.clear-btn {
+                background: var(--bg-primary);
+                color: var(--text-muted);
+                border: 1px solid var(--border-color);
+
+                &:hover {
+                    background: var(--bg-secondary);
+                    color: var(--text-color);
+                }
             }
         }
     }
@@ -2714,5 +3136,50 @@ const addImageToInput = (imgUrl) => {
     .upload-desc {
         color: #b0bec5;
     }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .modal-overlay {
+        padding: 0.5rem;
+        align-items: flex-start;
+        padding-top: 2rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        max-height: calc(85vh - 120px);
+    }
+
+    .preset-selector {
+        .preset-item {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+        }
+
+        select {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+    }
+}
+
+/* 防止iOS Safari的橡皮筋效果 */
+.modal-overlay {
+    position: fixed;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 确保触摸滚动流畅 */
+.modal-body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 </style>

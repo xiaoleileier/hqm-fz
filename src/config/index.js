@@ -29,9 +29,9 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'https://w5x8mu2a9943r.ezdemo.xyz/api/v1',
-            'https://skhsn6q4pnv95.ezdemo.xyz/api/v1',
-            'https://gy1v06omopzc8.ezdemo.xyz/api/v1'
+            // 'https://w5x8mu2a9943r.ezdemo.xyz/api/v1',
+            // 'https://skhsn6q4pnv95.ezdemo.xyz/api/v1'
+            // 'http://ap.haoqimaoer.top/api/v1'
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -43,7 +43,7 @@ export const config  = {
             appendApiPath: true,
 
             // API路径
-            apiPath: '/api/v1'
+            apiPath: '/haoqimao'
         }
     },
 
@@ -53,23 +53,23 @@ export const config  = {
   
     //=======================================================
     // 中间件服务器URL (不含路径) 开源地址 https://github.com/codeman857/EZ-Encrypt-Middleware
-    API_MIDDLEWARE_URL: 'https://d2ijw202als7c.ezdemo.xyz',
+    API_MIDDLEWARE_URL: 'https://zjj.haoqimaosv.top',
   
     // 中间件加密KEY必须是16位的16进制字符串，必须和中间件key保持一致 在线生成地址 https://www.bejson.com/math/hex_gen/
     API_MIDDLEWARE_KEY: '4c6f8e5f9467dc71',
     //=======================================================
 
     // 中间件路由前缀 (与中间件服务器配置保持一致)
-    API_MIDDLEWARE_PATH: '/ez/ez',
+    API_MIDDLEWARE_PATH: '/hqm',
 
     //=======================================================
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: 'EZ THEME',
+        siteName: '好奇猫',
         siteDescription: 'EZ UI',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} EZ THEME. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} HAO QI MAO. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,
@@ -101,10 +101,10 @@ export const config  = {
         defaultTheme: 'light',
 
         // 主题色 (16进制颜色值)
-        primaryColor: '#355cc2',
+        primaryColor: '#D595DA',
 
         // 是否启用落地页 (true=启用, false=禁用)
-        enableLandingPage: true // 默认启用
+        enableLandingPage: false // 默认启用
     },
 
     // 认证页面功能配置
@@ -174,7 +174,7 @@ export const config  = {
     // 商店页面配置
     SHOP_CONFIG: {
         // 是否在商店导航上显示热销标记
-        showHotSaleBadge: false,
+        showHotSaleBadge: true,
 
         // 是否显示套餐特性卡片 (true=显示, false=隐藏)
         showPlanFeatureCards: true, // 默认显示
@@ -211,7 +211,84 @@ export const config  = {
             title: "用户须知",
 
             // 弹窗内容 (支持HTML)
-            content: "<p><strong>常规套餐默认每月订单日重置流量，您当月未用使用完的流量，不会累积到下个月</strong></p>",
+            content: `
+            <div style="line-height: 1.6; color: #333;">
+                <div style="
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                    border: 2px solid #0ea5e9;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- 装饰性背景 -->
+                    <div style="
+                        position: absolute;
+                        top: -20px;
+                        right: -20px;
+                        width: 80px;
+                        height: 80px;
+                        background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+                        border-radius: 50%;
+                    "></div>
+                    
+                    <div style="display: flex; align-items: center; margin-bottom: 16px; position: relative; z-index: 1;">
+                        <div style="
+                            background: #0ea5e9;
+                            color: white;
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 12px;
+                            font-size: 18px;
+                            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+                        ">📋</div>
+                        <div>
+                            <strong style="
+                                color: #0c4a6e;
+                                font-size: 18px;
+                                display: block;
+                                margin-bottom: 4px;
+                            ">购买前必读</strong>
+                            <span style="
+                                color: #0369a1;
+                                font-size: 14px;
+                                font-weight: 500;
+                            ">请仔细阅读商店底部的重要信息</span>
+                        </div>
+                    </div>
+                    
+                    <div style="
+                        border-radius: 8px;
+                        padding: 12px;
+                        border-left: 4px solid #0ea5e9;
+                        position: relative;
+                        z-index: 1;
+                    ">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div style="
+                                background: #fef3c7;
+                                color: #92400e;
+                                padding: 4px 8px;
+                                border-radius: 6px;
+                                font-size: 12px;
+                                font-weight: 600;
+                                white-space: nowrap;
+                                margin-top: 2px;
+                            ">重要</div>
+                            <div style="color: #374151; font-size: 14px; line-height: 1.5;">
+                                包含退款政策、SLA保障、IPv6使用说明、技术支持等重要信息，确保您了解所有条款后再进行购买。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
             cooldownHours: 0,
@@ -224,16 +301,56 @@ export const config  = {
         // 下单前二次确认
         confirmOrder: true,
         // 下单前二次确认内容
-        confirmOrderContent: "<p><strong style='color: red'>无法提供相关教程和使用说明。</strong></p><p><strong style='color: red'>不会使用请勿购买，没有退款政策</strong></p>",
+        confirmOrderContent: `
+            <div style="line-height: 1.6; color: #333;">
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 20px; margin-right: 8px;">📚</span>
+                        <strong style="color: #856404; font-size: 16px;">使用教程</strong>
+                    </div>
+                    <p style="margin: 0; color: #856404;">
+                        我们提供详细的使用教程和配置指南，购买前请仔细阅读相关文档。
+                    </p>
+                </div>
+                
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 20px; margin-right: 8px;">⚠️</span>
+                        <strong style="color: #721c24; font-size: 16px;">重要声明</strong>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; color: #721c24;">
+                        <li style="margin-bottom: 8px;">
+                            <strong>不会使用请勿购买</strong> - 我们建议您先了解相关技术知识
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>无退款政策</strong> - 一旦购买成功，不支持任何形式的退款
+                        </li>
+                        <li style="margin-bottom: 0;">
+                            <strong>技术支持</strong> - 购买后如遇问题，可通过工单系统获得技术支持
+                        </li>
+                    </ul>
+                </div>
+                
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 8px;">💡</span>
+                        <strong style="color: #0c5460;">温馨提示</strong>
+                    </div>
+                    <p style="margin: 8px 0 0 0; color: #0c5460;">
+                        确认购买即表示您已阅读并同意以上条款，请谨慎操作。
+                    </p>
+                </div>
+            </div>
+        `,
 
     },
     // 仪表盘页面配置
     DASHBOARD_CONFIG: {
         // 是否在欢迎卡片中显示用户邮箱 (true=显示, false=隐藏)
-        showUserEmail: false,
+        showUserEmail: true,
 
         // 是否为导入订阅按钮添加高光效果和填充底色 (true=添加效果, false=不添加效果)
-        importButtonHighlightBtnbgcolor: false,
+        importButtonHighlightBtnbgcolor: true,
 
         // ===============================
 
@@ -241,7 +358,7 @@ export const config  = {
         enableResetTraffic: true,
 
         // 重置流量按钮显示条件 ('always'=始终显示, 'low'=流量低于阈值时显示, 'depleted'=流量耗尽时显示)
-        resetTrafficDisplayMode: 'low',
+        resetTrafficDisplayMode: 'depleted',
 
         // 低流量阈值百分比 (1-100)，当剩余流量百分比低于此值时触发低流量警告
         lowTrafficThreshold: 10,
@@ -281,12 +398,12 @@ export const config  = {
 
         // 客户端下载链接  //可以改成文档链接直接在新标签页打开
         clientLinks: {
-            ios: 'https://apps.apple.com/app/xxx',
-            android: 'https://play.google.com/store/apps/xxx',
-            macos: 'https://github.com/xxx/releases/latest',
-            windows: 'https://github.com/xxx/releases/latest',
-            linux: 'https://github.com/xxx/releases/latest',
-            openwrt: 'https://github.com/xxx/releases/latest'
+            ios: '/#/docs',
+            android: '/#/docs',
+            macos: '/#/docs',
+            windows: '/#/docs',
+            linux: '/#/docs',
+            openwrt: '/#/docs'
         },
 
         // 订阅导入客户端显示控制 部分面板不支持SingBox导入请您注意检查
@@ -335,7 +452,7 @@ export const config  = {
     // 用户中心页面配置
     PROFILE_CONFIG: {
         // 是否显示礼品卡兑换栏目 (true=显示, false=隐藏)
-        showGiftCardRedeem: false, // 只有Xiao-V2board支持礼品卡兑换
+        showGiftCardRedeem: true, // 只有Xiao-V2board支持礼品卡兑换
 
         // 是否显示最近登录设备栏目 (true=显示, false=隐藏)
         showRecentDevices: true
@@ -429,7 +546,7 @@ export const config  = {
     // 充值相关配置
     WALLET_CONFIG: {
         // 预设充值金额选项（单位：元）
-        presetAmounts: [6, 30, 68, 128, 256, 328, 648, 1280],
+        presetAmounts: [1, 6, 30, 68, 128, 256, 328, 648, 1280],
 
         // 默认选中的充值金额（如果设为null则不预选金额）
         defaultSelectedAmount: null,
@@ -443,7 +560,7 @@ export const config  = {
     // 邀请页面配置
     INVITE_CONFIG: {
         // 是否在导航栏的邀请按钮上显示返利标记
-        showCommissionBadge: false,
+        showCommissionBadge: true,
 
         // 返佣记录每页显示数量（最小值为10，API限制每次请求最少需要返回10条记录）
         recordsPerPage: 10,
@@ -451,9 +568,9 @@ export const config  = {
         // 邀请链接配置
         inviteLinkConfig: {
             // 链接模式：'auto'=自动使用当前站点域名，'custom'=使用自定义域名
-            linkMode: 'auto',
+            linkMode: 'custom',
             // 自定义域名，当linkMode为'custom'时使用
-            customDomain: 'https://example.com'
+            customDomain: 'http://49.232.26.62:12301'
         }
     },
 
@@ -471,8 +588,8 @@ export const config  = {
             'WeChat': true,  // 微信内置浏览器
             'Baidu': true,   // 百度浏览器
             'Sogou': true,   // 搜狗浏览器
-            'UC': false,     // UC浏览器
-            'Maxthon': false // 傲游浏览器
+            'UC': true,     // UC浏览器
+            'Maxthon': true // 傲游浏览器
         },
 
         // 推荐下载的浏览器链接
@@ -493,16 +610,48 @@ export const config  = {
             // 弹窗标题
             title: "工单须知",
             // 弹窗内容 (支持HTML)
-            content: "<p>请您准确描述您的问题，再提交工单，以便我们更快帮助您。</p>",
+            content: `
+                <div style="line-height: 1.6; color: #333;">
+                    <p style="margin-bottom: 16px; font-weight: 600; color: #e74c3c;">
+                        ⚠️ 重要提醒：我们不会"赛博算命"
+                    </p>
+                    
+                    <p style="margin-bottom: 12px;">
+                        为了更快帮助您解决问题，请务必详细描述以下信息：
+                    </p>
+                    
+                    <ul style="margin: 12px 0; padding-left: 20px; color: #555;">
+                        <li style="margin-bottom: 8px;">
+                            <strong>软件信息：</strong>具体使用的客户端名称和版本号如(mihomo/小火箭等)
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>设备信息：</strong>操作系统（Android/iOS/Windows/macOS）
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>网络环境：</strong>运营商（移动/联通/电信）和连接方式（WiFi/数据流量）
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>问题截图：</strong>如有错误提示或异常现象，请附上相关截图
+                        </li>
+                        <li style="margin-bottom: 8px;">
+                            <strong>操作步骤：</strong>详细说明问题出现的具体操作流程
+                        </li>
+                    </ul>
+                    
+                    <p style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px; color: #495057;">
+                        💡 <strong>温馨提示：</strong>信息越详细，我们越能快速定位问题并为您提供有效的解决方案！
+                    </p>
+                </div>
+            `,
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 24,
+            cooldownHours: 1,
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
-            closeWaitSeconds: 0
+            closeWaitSeconds: 3
         },
         // 工单图片设置
-        isImageHosting: false, // 是否启用工单图片上传功能
+        isImageHosting: true, // 是否启用工单图片上传功能
         // imgBB 图床 api 设置 前往imgBB注册账号 https://imgbb.com/ 获取 apiKey
-        imgbbApiKey: '',
+        imgbbApiKey: '2c1b1cd5b7006412e9a88132c699e3bc',
     },
 
     // 流量明细配置
@@ -517,7 +666,7 @@ export const config  = {
         daysToShow: 30, // 默认显示30天
 
         // 流量趋势图是否聚合每日流量 (如果你的节点倍率全为1倍则无需开启)
-        sumDailyTraffic: false // 默认禁用
+        sumDailyTraffic: true // 默认禁用
     },
 
     // 节点列表配置
@@ -529,13 +678,13 @@ export const config  = {
         showNodeDetails: false,
 
         // 是否允许查看节点详细信息（控制详情按钮和模态框）
-        allowViewNodeInfo: true
+        allowViewNodeInfo: false
     },
 
     // 客服系统配置
     CUSTOMER_SERVICE_CONFIG: {
         // 是否启用客服系统
-        enabled: false,
+        enabled: true,
 
         // 客服系统类型: 'crisp' 或 'other'
         // 注意：当客服类型为crisp时，系统会自动向Crisp传递用户数据
@@ -543,7 +692,7 @@ export const config  = {
         type: 'crisp',
 
         // 客服系统JS代码，请将您的客服系统提供的嵌入代码粘贴在这里
-        customHtml: '',
+        customHtml: '<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="2b7f7ff7-8956-4115-b721-75f17e754d00";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>',
 
         // 客服系统嵌入模式: 'popup'=弹出式页面, 'embed'=嵌入到每个页面
         // 'popup'模式: 点击客服图标会跳转到单独的客服页面
@@ -555,9 +704,9 @@ export const config  = {
 
         // 图标位置配置
         iconPosition: {
-            // 桌面版图标距离左下角的距离
+            // 桌面版图标距离右下角的距离
             desktop: {
-                left: '20px',
+                right: '20px',
                 bottom: '20px'
             },
             // 移动版图标距离右下角的距离

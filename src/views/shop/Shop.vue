@@ -22,7 +22,8 @@
 
       </div>
 
-      
+      <!-- 优惠券组件 -->
+      <CouponSection />
 
       <!-- 套餐统计卡片组 -->
 
@@ -145,8 +146,6 @@
         </div>
 
       </div>
-
-      
 
       <!-- 套餐列表 -->
 
@@ -380,6 +379,9 @@
 
       </div>
 
+      <!-- 问题须知组件 -->
+      <FAQSection />
+
     </div>
 
   </div>
@@ -421,6 +423,8 @@ import { fetchPlans, getCommConfig } from '@/api/shop';
 import { SHOP_CONFIG } from '@/utils/baseConfig';
 
 import ShopPopup from '@/components/shop/ShopPopup.vue';
+import FAQSection from '@/components/common/FAQSection.vue';
+import CouponSection from '@/components/common/CouponSection.vue';
 
 import {
 
@@ -444,7 +448,9 @@ import {
 
   IconCircle,
 
-  IconCircleCheck
+  IconCircleCheck,
+
+  IconChevronDown
 
 } from '@tabler/icons-vue';
 
@@ -480,7 +486,13 @@ export default {
 
     IconCircleCheck,
 
-    ShopPopup
+    IconChevronDown,
+
+    ShopPopup,
+
+    FAQSection,
+
+    CouponSection
 
   },
 
@@ -2909,6 +2921,7 @@ export default {
     }
 
   }
+
 
 }
 

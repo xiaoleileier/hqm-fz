@@ -586,4 +586,46 @@ export const checkUserLoginStatus = async () => {
     
     return { isLoggedIn: null, error: error.message || '网络错误' };
   }
+};
+
+// Google OAuth 登录
+export const getGoogleAuthUrl = async (inviteCode = '', redirectUrl = '') => {
+  return request({
+    url: '/passport/oauth/auth',
+    method: 'post',
+    data: {
+      type: 'google',
+      code: inviteCode,
+      redirect: redirectUrl
+    }
+  });
+};
+
+// Telegram OAuth 登录
+export const getTelegramAuthHash = async () => {
+  return request({
+    url: '/passport/oauth/telegram',
+    method: 'get'
+  });
+};
+
+// 检查 Telegram 登录状态
+export const checkTelegramLoginStatus = async (hash) => {
+  return request({
+    url: '/passport/oauth/telegram/check',
+    method: 'post',
+    data: { code: hash }
+  });
+};
+
+// 完成 Telegram 注册
+export const completeTelegramRegistration = async (hash, email) => {
+  return request({
+    url: '/passport/oauth/telegram/register',
+    method: 'post',
+    data: { 
+      code: hash, 
+      email: email 
+    }
+  });
 }; 

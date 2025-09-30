@@ -192,6 +192,33 @@
 
 
 
+      <!-- OAuth 登录选项 -->
+      <div class="oauth-section">
+        <div class="auth-divider">
+          <span class="auth-divider-text">{{ $t('auth.orLoginWith') }}</span>
+        </div>
+        
+        <div class="oauth-buttons">
+          <button 
+            class="oauth-btn google-btn" 
+            @click="handleGoogleLogin"
+            :disabled="loading"
+          >
+            <IconBrandGoogle :size="20" />
+            {{ $t('auth.loginWithGoogle') }}
+          </button>
+          
+          <button 
+            class="oauth-btn telegram-btn" 
+            @click="handleTelegramLogin"
+            :disabled="loading"
+          >
+            <IconBrandTelegram :size="20" />
+            {{ $t('auth.loginWithTelegram') }}
+          </button>
+        </div>
+      </div>
+
       <div class="auth-footer">
 
         <div class="auth-divider">
@@ -213,6 +240,138 @@
     </div>
 
 
+
+    <!-- Telegram 登录弹窗 -->
+    <div class="telegram-modal" v-if="showTelegramModal" @click="closeTelegramModal">
+      <div class="telegram-modal-content" @click.stop>
+        <div class="telegram-modal-header">
+          <div class="header-left">
+            <div class="telegram-icon">
+              <IconBrandTelegram :size="20" />
+            </div>
+            <h3>{{ $t('auth.telegramLoginTitle') }}</h3>
+          </div>
+          <button class="modal-close" @click="closeTelegramModal">
+            <IconX :size="18" />
+          </button>
+        </div>
+        
+        <div class="telegram-modal-body">
+          <!-- 机器人信息 -->
+          <div class="bot-info">
+            <div class="bot-avatar">
+              <IconBrandTelegram :size="24" />
+            </div>
+            <div class="bot-details">
+              <h4>{{ getBotName() }}</h4>
+              <p>{{ $t('auth.telegramBotDesc') }}</p>
+            </div>
+          </div>
+          
+          <!-- 验证码区域 -->
+          <div class="verification-section">
+            <div class="section-title">
+              <span class="step-badge">1</span>
+              <h4>{{ $t('auth.telegramStep1') }}</h4>
+            </div>
+            <p class="section-desc">{{ $t('auth.telegramStep1Desc') }}</p>
+            
+            <div class="code-container">
+              <div class="code-input">
+                <code>/login {{ telegramHash }}</code>
+                <button class="copy-button" @click="copyLoginHash">
+                  <IconCopy :size="16" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 操作步骤 -->
+          <div class="action-section">
+            <div class="section-title">
+              <span class="step-badge">2</span>
+              <h4>{{ $t('auth.telegramStep2') }}</h4>
+            </div>
+            <div class="step-list">
+              <div class="step-item">
+                <span class="step-number">1</span>
+                <span class="step-text">打开 Telegram 应用</span>
+              </div>
+              <div class="step-item">
+                <span class="step-number">2</span>
+                <span class="step-text">搜索机器人：<span class="bot-name">{{ getBotName() }}</span></span>
+              </div>
+              <div class="step-item">
+                <span class="step-number">3</span>
+                <span class="step-text">将验证码发送给机器人</span>
+              </div>
+              <div class="step-item">
+                <span class="step-number">4</span>
+                <span class="step-text">等待验证完成</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 状态指示器 -->
+          <div class="telegram-status" v-if="telegramStatus">
+            <div class="status-indicator" :class="telegramStatus">
+              <IconLoader v-if="telegramStatus === 'checking'" class="spinning" />
+              <IconCheck v-else-if="telegramStatus === 'success'" />
+              <IconX v-else-if="telegramStatus === 'error'" />
+            </div>
+            <span class="status-text">{{ getTelegramStatusText() }}</span>
+          </div>
+        </div>
+        
+        <div class="telegram-modal-footer">
+          <button class="btn btn-secondary" @click="closeTelegramModal">
+            {{ $t('common.cancel') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 邮箱输入弹窗 -->
+    <div class="email-modal" v-if="showEmailModal" @click="closeEmailModal">
+      <div class="email-modal-content" @click.stop>
+        <div class="email-modal-header">
+          <h3>{{ $t('auth.emailRequiredTitle') }}</h3>
+          <button class="modal-close" @click="closeEmailModal">
+            <IconX :size="20" />
+          </button>
+        </div>
+        
+        <div class="email-modal-body">
+          <p>{{ $t('auth.emailRequiredDesc') }}</p>
+          <div class="form-group">
+            <label>{{ $t('common.email') }}</label>
+            <input 
+              type="email" 
+              v-model="emailInput" 
+              :placeholder="$t('auth.emailPlaceholder')"
+              class="form-control"
+            />
+            <div v-if="emailError" class="error-message">{{ emailError }}</div>
+          </div>
+        </div>
+        
+        <div class="email-modal-footer">
+          <button class="btn btn-secondary" @click="closeEmailModal">
+            {{ $t('common.cancel') }}
+          </button>
+          <button 
+            class="btn btn-primary" 
+            @click="completeTelegramReg"
+            :disabled="!emailInput || emailLoading"
+          >
+            <span v-if="emailLoading" class="loading-wrapper">
+              <span>{{ $t('common.loading') }}</span>
+            </span>
+            <span v-else>{{ $t('auth.completeRegistration') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- 自定义弹窗 -->
 
@@ -262,7 +421,29 @@ import IconEye from '@/components/icons/IconEye.vue';
 
 import IconEyeOff from '@/components/icons/IconEyeOff.vue';
 
-import { login, checkLoginStatus } from '@/api/auth';
+import IconBrandGoogle from '@/components/icons/IconBrandGoogle.vue';
+
+import IconBrandTelegram from '@/components/icons/IconBrandTelegram.vue';
+
+import IconX from '@/components/icons/IconX.vue';
+
+import IconCopy from '@/components/icons/IconCopy.vue';
+
+import IconSend from '@/components/icons/IconSend.vue';
+
+import IconLoader from '@/components/icons/IconLoader.vue';
+
+import IconCheck from '@/components/icons/IconCheck.vue';
+
+import { 
+  login, 
+  checkLoginStatus, 
+  getGoogleAuthUrl, 
+  getTelegramAuthHash, 
+  checkTelegramLoginStatus, 
+  completeTelegramRegistration,
+  getWebsiteConfig
+} from '@/api/auth';
 
 import { validateEmail, validateRequired } from '@/utils/validators';
 
@@ -299,6 +480,20 @@ export default {
     IconEye,
 
     IconEyeOff,
+
+    IconBrandGoogle,
+
+    IconBrandTelegram,
+
+    IconX,
+
+    IconCopy,
+
+    IconSend,
+
+    IconLoader,
+
+    IconCheck,
 
     DomainAuthAlert,
 
@@ -353,8 +548,30 @@ export default {
 
 
     const loading = ref(false);
+    const configLoading = ref(false);
 
+    const config = reactive({
+      tos_url: '',
+      is_email_verify: 0,
+      is_recaptcha: 0,
+      is_invite_force: 0,
+      recaptcha_site_key: '',
+      email_whitelist_suffix: [],
+      telegram_bot_name: '',
+      telegram_bot: '',
+      bot_name: '',
+      telegram_bot_username: ''
+    });
 
+    // OAuth 相关状态
+    const showTelegramModal = ref(false);
+    const showEmailModal = ref(false);
+    const telegramHash = ref('');
+    const telegramStatus = ref('');
+    const telegramPollInterval = ref(null);
+    const emailInput = ref('');
+    const emailError = ref('');
+    const emailLoading = ref(false);
 
     const showPassword = ref(false);
 
@@ -509,6 +726,31 @@ export default {
         console.error("登录状态检查失败", error);
 
       }
+      
+      // 加载网站配置
+      try {
+        if(window.EZ_CONFIG.API_CONFIG.showCheckBackend) {
+          configLoading.value = true;
+        }
+        
+        const response = await getWebsiteConfig();
+        
+        if (response) {
+          // 检查响应结构，如果包含data字段则使用data，否则直接使用response
+          const configData = response.data || response;
+          
+          // 直接更新每个字段，确保null值也能正确覆盖
+          Object.keys(configData).forEach(key => {
+            if (configData[key] !== undefined) {
+              config[key] = configData[key];
+            }
+          });
+        }
+      } catch (error) {
+        console.error('加载网站配置失败:', error);
+      } finally {
+        configLoading.value = false;
+      }
 
     });
 
@@ -600,6 +842,192 @@ export default {
 
     };
 
+    // Google 登录
+    const handleGoogleLogin = async () => {
+      try {
+        const inviteCode = router.currentRoute.value.query.invite_code || '';
+        const redirectUrl = window.location.origin + '/dashboard';
+        
+        const response = await getGoogleAuthUrl(inviteCode, redirectUrl);
+        
+        if (response && response.data && response.data.url) {
+          const authWindow = window.open(
+            response.data.url,
+            'googleAuth',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+          );
+          
+          // 监听窗口关闭
+          const checkAuth = setInterval(() => {
+            if (authWindow.closed) {
+              clearInterval(checkAuth);
+              // 检查登录状态
+              checkLoginStatus().then(result => {
+                if (result.isLoggedIn) {
+                  router.push('/dashboard');
+                }
+              });
+            }
+          }, 1000);
+        }
+      } catch (error) {
+        showToast(error.message || t('auth.googleLoginFailed'), 'error');
+      }
+    };
+
+    // Telegram 登录
+    const handleTelegramLogin = async () => {
+      try {
+        const response = await getTelegramAuthHash();
+        
+        if (response && response.data && response.data.hash) {
+          telegramHash.value = response.data.hash;
+          showTelegramModal.value = true;
+          startTelegramPolling(response.data.hash);
+        }
+      } catch (error) {
+        showToast(error.message || t('auth.telegramLoginFailed'), 'error');
+      }
+    };
+
+    // 开始轮询 Telegram 登录状态
+    const startTelegramPolling = (hash) => {
+      telegramStatus.value = 'checking';
+      
+      telegramPollInterval.value = setInterval(async () => {
+        try {
+          const response = await checkTelegramLoginStatus(hash);
+          
+          if (response.status === 'success') {
+            clearInterval(telegramPollInterval.value);
+            telegramStatus.value = 'success';
+            
+            // 保存token并跳转
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('auth_data', response.data.auth_data);
+            
+            setTimeout(() => {
+              // Telegram注册成功后跳转到profile页面进行邮箱验证
+              window.location.href = '/#/profile';
+            }, 1000);
+          } else if (response.status === 'need_email') {
+            clearInterval(telegramPollInterval.value);
+            showTelegramModal.value = false;
+            showEmailModal.value = true;
+          } else if (response.status === 'error') {
+            clearInterval(telegramPollInterval.value);
+            telegramStatus.value = 'error';
+            showToast(response.error || t('auth.telegramLoginError'), 'error');
+          }
+        } catch (error) {
+          console.error('检查Telegram登录状态失败:', error);
+        }
+      }, 2000);
+      
+      // 5分钟后停止轮询
+      setTimeout(() => {
+        if (telegramPollInterval.value) {
+          clearInterval(telegramPollInterval.value);
+          telegramStatus.value = 'error';
+        }
+      }, 300000);
+    };
+
+    // 关闭 Telegram 弹窗
+    const closeTelegramModal = () => {
+      showTelegramModal.value = false;
+      if (telegramPollInterval.value) {
+        clearInterval(telegramPollInterval.value);
+      }
+      telegramStatus.value = '';
+    };
+
+    // 关闭邮箱弹窗
+    const closeEmailModal = () => {
+      showEmailModal.value = false;
+      emailInput.value = '';
+      emailError.value = '';
+    };
+
+    // 复制 hash
+    // 复制 /login 验证码
+    const copyLoginHash = async () => {
+      try {
+        await navigator.clipboard.writeText(`/login ${telegramHash.value}`);
+        showToast(t('common.copied'), 'success');
+      } catch (error) {
+        showToast(t('common.copyFailed'), 'error');
+      }
+    };
+
+    // 完成 Telegram 注册
+    const completeTelegramReg = async () => {
+      if (!emailInput.value) {
+        emailError.value = t('auth.emailRequired');
+        return;
+      }
+      
+      emailLoading.value = true;
+      emailError.value = '';
+      
+      try {
+        const response = await completeTelegramRegistration(telegramHash.value, emailInput.value);
+        
+        if (response.status === 'success') {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('auth_data', response.data.auth_data);
+          
+          showToast(t('auth.registrationSuccess'), 'success');
+          setTimeout(() => {
+            // 强制刷新页面以确保所有资源正确加载
+            window.location.href = '/#/dashboard';
+          }, 1000);
+        } else {
+          emailError.value = response.error || t('auth.registrationFailed');
+        }
+      } catch (error) {
+        emailError.value = error.message || t('auth.registrationFailed');
+      } finally {
+        emailLoading.value = false;
+      }
+    };
+
+    // 获取 Telegram 状态文本
+    const getTelegramStatusText = () => {
+      switch (telegramStatus.value) {
+        case 'checking':
+          return t('auth.telegramChecking');
+        case 'success':
+          return t('auth.telegramSuccess');
+        case 'error':
+          return t('auth.telegramError');
+        default:
+          return '';
+      }
+    };
+
+    // 获取机器人名称
+    const getBotName = () => {
+      return config.telegram_bot_name || 
+             config.telegram_bot || 
+             config.bot_name || 
+             config.telegram_bot_username || 
+             window.EZ_CONFIG?.telegram_bot_name || 
+             window.EZ_CONFIG?.telegram_bot || 
+             window.EZ_CONFIG?.bot_name || 
+             window.EZ_CONFIG?.telegram_bot_username || 
+             '@your_login_bot';
+    };
+
+    // 获取 Telegram 第二步描述（带样式的机器人地址）
+    const getTelegramStep2Desc = () => {
+      const botUsername = getBotName();
+      
+      return t('auth.telegramStep2Desc', { 
+        bot_username: `<span class="bot-username">${botUsername}</span>` 
+      });
+    };
+
     return {
 
       formData,
@@ -607,10 +1035,13 @@ export default {
       errors,
 
       loading,
+      configLoading,
 
       showPassword,
 
       handleLogin,
+
+      config,
 
 
 
@@ -624,7 +1055,25 @@ export default {
 
       handleAuthPopupClose,
 
-      goTo
+      goTo,
+
+      // OAuth 相关
+      handleGoogleLogin,
+      handleTelegramLogin,
+      showTelegramModal,
+      showEmailModal,
+      telegramHash,
+      telegramStatus,
+      emailInput,
+      emailError,
+      emailLoading,
+      closeTelegramModal,
+      closeEmailModal,
+      copyLoginHash,
+      completeTelegramReg,
+      getTelegramStatusText,
+      getBotName,
+      getTelegramStep2Desc,
 
     };
 
@@ -1342,6 +1791,484 @@ export default {
 
   }
 
+}
+
+// OAuth 登录样式
+.oauth-section {
+  margin-top: 24px;
+  
+  .oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .oauth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+      background-color: var(--hover-background);
+      border-color: var(--theme-color);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    &.google-btn {
+      &:hover:not(:disabled) {
+        background-color: #f8f9fa;
+        border-color: #4285f4;
+        color: #333;
+      }
+    }
+    
+    &.telegram-btn {
+      &:hover:not(:disabled) {
+        background-color: #f0f8ff;
+        border-color: #0088cc;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Telegram 弹窗样式
+.telegram-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  
+  .telegram-modal-content {
+    background: var(--card-background);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    
+    .telegram-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        .telegram-icon {
+          width: 36px;
+          height: 36px;
+          background: #0088cc;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
+        
+        h3 {
+          margin: 0;
+          color: var(--text-color);
+          font-size: 18px;
+          font-weight: 600;
+        }
+      }
+      
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--secondary-text-color);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: var(--hover-background);
+          color: var(--text-color);
+        }
+      }
+    }
+    
+    .telegram-modal-body {
+      padding: 24px;
+      
+      // 机器人信息
+      .bot-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: rgba(0, 136, 204, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 136, 204, 0.1);
+        margin-bottom: 24px;
+        
+        .bot-avatar {
+          width: 40px;
+          height: 40px;
+          background: #0088cc;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
+        
+        .bot-details {
+          flex: 1;
+          
+          h4 {
+            margin: 0 0 4px 0;
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+          }
+          
+          p {
+            margin: 0;
+            color: var(--secondary-text-color);
+            font-size: 14px;
+          }
+        }
+      }
+      
+      // 验证码区域
+      .verification-section {
+        margin-bottom: 24px;
+        
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+          
+          .step-badge {
+            width: 24px;
+            height: 24px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+          }
+          
+          h4 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+          }
+        }
+        
+        .section-desc {
+          margin: 0 0 16px 0;
+          color: var(--secondary-text-color);
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        .code-container {
+          .code-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            
+            code {
+              flex: 1;
+              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-size: 14px;
+              color: var(--text-color);
+              background: none;
+              padding: 0;
+              font-weight: 600;
+            }
+            
+            .copy-button {
+              background: var(--theme-color);
+              color: white;
+              border: none;
+              padding: 8px;
+              border-radius: 6px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              
+              &:hover {
+                background: var(--theme-hover-color);
+                transform: scale(1.05);
+              }
+            }
+          }
+        }
+      }
+      
+      // 操作步骤
+      .action-section {
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+          
+          .step-badge {
+            width: 24px;
+            height: 24px;
+            background: var(--theme-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+          }
+          
+          h4 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+          }
+        }
+        
+        .step-list {
+          .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            
+            .step-number {
+              width: 20px;
+              height: 20px;
+              background: var(--background-color);
+              border: 1px solid var(--border-color);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              font-weight: 600;
+              color: var(--text-color);
+            }
+            
+            .step-text {
+              color: var(--text-color);
+              font-size: 14px;
+              line-height: 1.5;
+              
+              .bot-name {
+                color: var(--theme-color);
+                font-weight: 600;
+                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                background: rgba(var(--theme-color-rgb), 0.1);
+                padding: 2px 6px;
+                border-radius: 4px;
+              }
+            }
+          }
+        }
+      }
+      
+      .telegram-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: var(--background-color);
+        border-radius: 8px;
+        margin-top: 20px;
+        border: 1px solid var(--border-color);
+        
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          
+          &.checking {
+            background: rgba(var(--warning-color-rgb), 0.1);
+            color: var(--warning-color);
+          }
+          
+          &.success {
+            background: rgba(var(--success-color-rgb), 0.1);
+            color: var(--success-color);
+          }
+          
+          &.error {
+            background: rgba(var(--error-color-rgb), 0.1);
+            color: var(--error-color);
+          }
+          
+          .spinning {
+            animation: spin 1s linear infinite;
+          }
+        }
+        
+        .status-text {
+          color: var(--text-color);
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .telegram-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border-color);
+    }
+  }
+}
+
+// 邮箱弹窗样式
+.email-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .email-modal-content {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    
+    .email-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      
+      h3 {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--secondary-text-color);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        
+        &:hover {
+          background-color: var(--hover-background);
+        }
+      }
+    }
+    
+    .email-modal-body {
+      padding: 24px;
+      
+      p {
+        margin: 0 0 16px 0;
+        color: var(--secondary-text-color);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      .form-group {
+        margin-bottom: 0;
+        
+        label {
+          display: block;
+          margin-bottom: 8px;
+          color: var(--text-color);
+          font-size: 14px;
+          font-weight: 500;
+        }
+        
+        .form-control {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          background-color: var(--background-color);
+          color: var(--text-color);
+          font-size: 14px;
+          
+          &:focus {
+            outline: none;
+            border-color: var(--theme-color);
+            box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.1);
+          }
+        }
+        
+        .error-message {
+          margin-top: 8px;
+          color: #ef4444;
+          font-size: 12px;
+        }
+      }
+    }
+    
+    .email-modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding: 20px 24px;
+      border-top: 1px solid var(--border-color);
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 </style>

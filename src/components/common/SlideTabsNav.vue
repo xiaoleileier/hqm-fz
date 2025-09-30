@@ -1,6 +1,6 @@
 ﻿<template>
 
-  <div class="slide-tabs-container">
+  <div class="slide-tabs-container" :class="{ 'ticket-page': isTicketPage }">
 
     <div class="slide-tabs-wrapper">
 
@@ -134,7 +134,7 @@ export default {
 
       width: 0,
 
-      transform: 'translateX(0px)',
+      transform: 'translateY(0px)',
 
       opacity: 0,
 
@@ -146,7 +146,9 @@ export default {
 
     const sliderStyle = computed(() => ({
 
-      width: `${sliderState.width}px`,
+      width: isSmallScreen.value ? `${sliderState.width}px` : '100%',
+
+      height: isSmallScreen.value ? '100%' : `${sliderState.width}px`,
 
       transform: sliderState.transform,
 
@@ -173,71 +175,51 @@ export default {
     // 替换原有的 navItems 定义
     const getNavItems = () => {
 
-        // 基础导航项
-        const baseNavItems = [
-
-            { title: 'Dashboard', path: '/dashboard', name: 'Dashboard', icon: 'IconDashboard', i18nKey: 'dashboard' },
-
-            { title: 'Shop', path: '/shop', name: 'Shop', icon: 'IconShop', i18nKey: 'shop' },
-
-        ];
-
-        // 获取第三、第四个导航项配置
-        const thirdNavItem = NAVIGATION_CONFIG?.thirdNavItem || 'invite';
-        const fourthNavItem = NAVIGATION_CONFIG?.fourthNavItem || '';
-
-        // 导航项配置映射（可复用）
-        const navMap = {
-
-          docs: { title: 'Docs', path: '/docs', name: 'Docs', icon: 'IconFileText', i18nKey: 'docs' },
-
-          invite: { title: 'Invite', path: '/invite', name: 'Invite', icon: 'IconInvite', i18nKey: 'invite' },
-
-          tickets: {
-
-            title: 'Tickets',
-
-            path: isSmallScreen.value ? '/mobile/tickets' : '/tickets',
-
-            name: 'Tickets',
-
-            icon: 'IconHeadset',
-
-            i18nKey: 'tickets'
-          },
-
-          nodes: { title: 'Nodes', path: '/nodes', name: 'Nodes', icon: 'IconServer', i18nKey: 'nodes' },
-
-          orders: { title: 'Orders', path: '/orders', name: 'Orders', icon: 'IconShop', i18nKey: 'orders' },
-
-          traffic: { title: 'Traffic', path: '/trafficlog', name: 'TrafficLog', icon: 'IconChartBar', i18nKey: 'traffic' },
-
-          wallet: { title: 'Wallet', path: '/wallet/deposit', name: 'Deposit', icon: 'IconWallet', i18nKey: 'wallet' },
-
-          profile: { title: 'Profile', path: '/profile', name: 'Profile', icon: 'IconUser', i18nKey: 'profile' }
-
-        };
-
-        // 添加配置的第三个导航项（有效值才插入）
-        const third = navMap[thirdNavItem];
-        if (third) {
-          baseNavItems.push(third);
+        // 检查当前路由，如果是工单页面则使用简化导航
+        const isTicketPage = route.name === 'Tickets' || route.path.includes('/tickets') || route.path.includes('/mobile/tickets');
+        
+        if (isTicketPage) {
+            // 工单页面使用最初的四个导航项加更多
+            return [
+                { title: 'Dashboard', path: '/dashboard', name: 'Dashboard', icon: 'IconDashboard', i18nKey: 'dashboard' },
+                { title: 'Shop', path: '/shop', name: 'Shop', icon: 'IconShop', i18nKey: 'shop' },
+                { title: 'Invite', path: '/invite', name: 'Invite', icon: 'IconInvite', i18nKey: 'invite' },
+                { title: 'Tickets', path: isSmallScreen.value ? '/mobile/tickets' : '/tickets', name: 'Tickets', icon: 'IconHeadset', i18nKey: 'tickets' },
+                { title: 'More', path: '/more', name: 'More', icon: 'IconMore', i18nKey: 'more' }
+            ];
+        } else if (isSmallScreen.value) {
+            // 手机端使用简化的四个导航项加更多
+            return [
+                { title: 'Dashboard', path: '/dashboard', name: 'Dashboard', icon: 'IconDashboard', i18nKey: 'dashboard' },
+                { title: 'Shop', path: '/shop', name: 'Shop', icon: 'IconShop', i18nKey: 'shop' },
+                { title: 'Invite', path: '/invite', name: 'Invite', icon: 'IconInvite', i18nKey: 'invite' },
+                { title: 'More', path: '/more', name: 'More', icon: 'IconMore', i18nKey: 'more' }
+            ];
+        } else {
+            // PC端使用完整的导航项
+            return [
+                { title: 'Dashboard', path: '/dashboard', name: 'Dashboard', icon: 'IconDashboard', i18nKey: 'dashboard' },
+                { title: 'Shop', path: '/shop', name: 'Shop', icon: 'IconShop', i18nKey: 'shop' },
+                { title: 'Invite', path: '/invite', name: 'Invite', icon: 'IconInvite', i18nKey: 'invite' },
+                { title: 'Docs', path: '/docs', name: 'Docs', icon: 'IconFileText', i18nKey: 'docs' },
+                { title: 'Nodes', path: '/nodes', name: 'Nodes', icon: 'IconServer', i18nKey: 'nodes' },
+                { title: 'Orders', path: '/orders', name: 'Orders', icon: 'IconShop', i18nKey: 'orders' },
+                { title: 'Tickets', path: isSmallScreen.value ? '/mobile/tickets' : '/tickets', name: 'Tickets', icon: 'IconHeadset', i18nKey: 'tickets' },
+                { title: 'Profile', path: '/profile', name: 'Profile', icon: 'IconUser', i18nKey: 'profile' },
+                { title: 'Traffic', path: '/trafficlog', name: 'TrafficLog', icon: 'IconChartBar', i18nKey: 'traffic' },
+                { title: 'Wallet', path: '/wallet/deposit', name: 'Deposit', icon: 'IconWallet', i18nKey: 'wallet' },
+                { title: 'More', path: '/more', name: 'More', icon: 'IconMore', i18nKey: 'more' }
+            ];
         }
-
-        // 可选：添加第四个导航项（非空、有效且不与第三重复时插入）
-        const fourth = fourthNavItem && navMap[fourthNavItem] ? navMap[fourthNavItem] : null;
-        if (fourth && fourth.i18nKey !== (third?.i18nKey)) {
-          baseNavItems.push(fourth);
-        }
-
-        // 添加更多选项
-        baseNavItems.push({ title: 'More', path: '/more', name: 'More', icon: 'IconMore', i18nKey: 'more' });
-
-        return baseNavItems;
         
     };
 
-    const navItems = getNavItems();
+    const navItems = computed(() => getNavItems());
+    
+    // 检查是否为工单页面
+    const isTicketPage = computed(() => {
+      return route.name === 'Tickets' || route.path.includes('/tickets') || route.path.includes('/mobile/tickets');
+    });
 
     
 
@@ -317,71 +299,45 @@ export default {
 
 
     const updateSliderPosition = (index, animate = true) => {
-
       if (!isComponentMounted.value || index < 0 || !tabsNav.value) return;
 
-      
-
+      // 清除之前的定时器
       positionTimers.forEach(timer => clearTimeout(timer));
-
       positionTimers = [];
 
-      
-
       try {
-
         nextTick(() => {
-
           if (!isComponentMounted.value || !tabsNav.value) return;
 
-          
-
           const navItemElements = tabsNav.value.querySelectorAll('.nav-item');
-
           
-
           if (navItemElements.length > 0 && index >= 0 && index < navItemElements.length) {
-
             const activeItem = navItemElements[index];
+            const { offsetWidth, offsetLeft, offsetHeight, offsetTop } = activeItem;
 
-            const { offsetWidth, offsetLeft } = activeItem;
-
-            
-
+            // 优化动画设置
             if (animate) {
-
-              sliderState.transition = 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)';
-
+              sliderState.transition = 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
             } else {
-
               sliderState.transition = 'none';
-
             }
 
-            
-
-            sliderState.width = offsetWidth;
-
-            sliderState.transform = `translateX(${offsetLeft}px)`;
-
-            
+            // 根据屏幕尺寸决定使用水平还是垂直布局
+            if (isSmallScreen.value) {
+              sliderState.width = offsetWidth;
+              sliderState.transform = `translateX(${offsetLeft}px)`;
+            } else {
+              sliderState.width = offsetHeight;
+              sliderState.transform = `translateY(${offsetTop}px)`;
+            }
 
             sliderState.opacity = 1;
-
-            
-
             isInitialized.value = true;
-
           }
-
         });
-
       } catch (error) {
-
         console.warn('SlideTabsNav: Error updating slider position', error);
-
       }
-
     };
 
 
@@ -392,7 +348,7 @@ export default {
 
         const activeNavName = route.meta.activeNav;
 
-        const activeIndex = navItems.findIndex(item => item.name === activeNavName);
+        const activeIndex = navItems.value.findIndex(item => item.name === activeNavName);
 
         
 
@@ -406,7 +362,7 @@ export default {
 
       
 
-      const index = navItems.findIndex(item => item.name === routeName);
+      const index = navItems.value.findIndex(item => item.name === routeName);
 
       return index !== -1 ? index : 0; 
     };
@@ -517,7 +473,7 @@ export default {
 
           const activeNavName = route.meta.activeNav;
 
-          const indexByActiveNav = navItems.findIndex(item => item.name === activeNavName);
+          const indexByActiveNav = navItems.value.findIndex(item => item.name === activeNavName);
 
           if (indexByActiveNav !== -1) {
 
@@ -541,17 +497,19 @@ export default {
 
           const activeItem = navItemElements[activeIndex];
 
-          const { offsetWidth, offsetLeft } = activeItem;
+          const { offsetWidth, offsetLeft, offsetHeight, offsetTop } = activeItem;
 
           
 
           const currentTransform = sliderState.transform;
 
-          const expectedTransform = `translateX(${offsetLeft}px)`;
+          const expectedTransform = isSmallScreen.value ? `translateX(${offsetLeft}px)` : `translateY(${offsetTop}px)`;
+
+          const expectedSize = isSmallScreen.value ? offsetWidth : offsetHeight;
 
           
 
-          if (currentTransform !== expectedTransform || sliderState.width !== offsetWidth) {
+          if (currentTransform !== expectedTransform || sliderState.width !== expectedSize) {
 
             updateSliderPosition(activeIndex, true);
 
@@ -570,54 +528,38 @@ export default {
     
 
     const handleScroll = debounce(() => {
-
       if (isComponentMounted.value) {
-
         checkAndFixSliderPosition();
-
       }
-
-    }, 200);
+    }, 300);
 
     
 
     const onLanguageChanged = () => {
-
       languageKey.value = Date.now();
-
       
-
-      sliderState.transition = 'width 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s ease';
-
-      
-
+      sliderState.transition = 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
       sliderState.opacity = 0.3;
 
-      
-
-      [50, 200, 400, 600].forEach(delay => {
-
-        safeTimeout(() => {
-
-          if (isComponentMounted.value && tabsNav.value) {
-
-            if (delay >= 400) {
-
-              sliderState.opacity = 1;
-
-            }
-
-            updateSliderPosition(currentIndex.value, true);
-
-          }
-
-        }, delay);
-
-      });
-
+      // 简化定时器，减少性能开销
+      safeTimeout(() => {
+        if (isComponentMounted.value && tabsNav.value) {
+          sliderState.opacity = 1;
+          updateSliderPosition(currentIndex.value, true);
+        }
+      }, 200);
     };
 
 
+
+    // 监听路由变化，为body添加类名
+    watch(isTicketPage, (newValue) => {
+      if (newValue) {
+        document.body.classList.add('ticket-page');
+      } else {
+        document.body.classList.remove('ticket-page');
+      }
+    }, { immediate: true });
 
     onMounted(() => {
 
@@ -662,7 +604,7 @@ export default {
 
             const activeNavName = route.meta.activeNav;
 
-            const indexByActiveNav = navItems.findIndex(item => item.name === activeNavName);
+            const indexByActiveNav = navItems.value.findIndex(item => item.name === activeNavName);
 
             if (indexByActiveNav !== -1) {
 
@@ -718,41 +660,13 @@ export default {
 
       
 
-      [100, 300, 500, 1000].forEach(delay => {
-
-        safeTimeout(() => {
-
-          if (tabsNav.value) {
-
-            const index = findIndexByRouteName(route.name);
-
-            updateSliderPosition(index, delay > 300);
-
-          }
-
-        }, delay);
-
-      });
-
-      
-
+      // 简化初始化定时器
       safeTimeout(() => {
-
-        if (isComponentMounted.value && tabsNav.value) {
-
+        if (tabsNav.value) {
           const index = findIndexByRouteName(route.name);
-
-          updateSliderPosition(index, false);
-
-          safeTimeout(() => {
-
-            updateSliderPosition(index, true);
-
-          }, 50);
-
+          updateSliderPosition(index, true);
         }
-
-      }, 1500);
+      }, 300);
 
       
 
@@ -776,8 +690,7 @@ export default {
 
       
 
-      const debouncedResize = debounce(handleResize, 100);
-
+      const debouncedResize = debounce(handleResize, 200);
       window.addEventListener('resize', debouncedResize);
 
       
@@ -787,14 +700,10 @@ export default {
       
 
       positionCheckInterval = setInterval(() => {
-
         if (isComponentMounted.value) {
-
           checkAndFixSliderPosition();
-
         }
-
-      }, 3000);
+      }, 5000);
 
       
 
@@ -913,7 +822,9 @@ export default {
 
       showInviteBadge,
 
-      showShopBadge
+      showShopBadge,
+
+      isTicketPage
 
     };
 
@@ -953,11 +864,11 @@ function debounce(fn, delay) {
 
   position: fixed;
 
-  top: 20px;
+  top: 50%;
 
-  left: 50%;
+  left: 20px;
 
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 
   z-index: 10;
 
@@ -993,6 +904,8 @@ function debounce(fn, delay) {
 
     display: flex;
 
+    flex-direction: column;
+
     position: relative;
 
     
@@ -1019,7 +932,7 @@ function debounce(fn, delay) {
 
     .nav-item {
 
-      padding: 6px 16px;
+      padding: 12px 16px;
 
       border-radius: 26px;
 
@@ -1045,7 +958,9 @@ function debounce(fn, delay) {
 
       align-items: center;
 
-      gap: 5px;
+      gap: 8px;
+
+      margin-bottom: 4px;
 
       
 
@@ -1181,7 +1096,7 @@ function debounce(fn, delay) {
 
       left: 0;
 
-      height: 100%;
+      width: 100%;
 
       background-color: rgba(var(--theme-color-rgb), 0.1);
 
@@ -1193,9 +1108,9 @@ function debounce(fn, delay) {
 
       border: 1px solid var(--theme-color);
 
-      will-change: transform, width, opacity;
+      will-change: transform, width;
 
-      transition-property: transform, width, opacity;  
+      transition-property: transform, width;  
 
     }
 
@@ -1211,6 +1126,8 @@ function debounce(fn, delay) {
 
     .slide-tabs-nav {
 
+      flex-direction: row;
+
       .nav-item {
 
         padding: 6px 10px;
@@ -1224,6 +1141,8 @@ function debounce(fn, delay) {
         justify-content: center;
 
         height: 64px;
+
+        margin-bottom: 0;
 
         
 
@@ -1325,6 +1244,10 @@ function debounce(fn, delay) {
 
     bottom: 20px;  
 
+    left: 50%;
+
+    transform: translateX(-50%);
+
     width: 92%;
 
     max-width: 450px;
@@ -1417,6 +1340,65 @@ function debounce(fn, delay) {
 
   }
 
+}
+
+/* 工单页面特殊样式 - 顶部居中导航 */
+@media (min-width: 769px) {
+  .slide-tabs-container.ticket-page {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .slide-tabs-container.ticket-page .slide-tabs-nav {
+    flex-direction: row;
+  }
+  
+  .slide-tabs-container.ticket-page .nav-item {
+    margin-bottom: 0;
+    margin-right: 4px;
+  }
+  
+  .slide-tabs-container.ticket-page .slider-indicator {
+    height: 100%;
+    width: auto;
+  }
+}
+
+/* 为主内容区域添加左边距，避免被左侧导航栏遮挡 */
+@media (min-width: 769px) {
+  /* 为整个页面添加左边距 */
+  body {
+    margin-left: 250px !important;
+  }
+  
+  /* 工单页面不需要左边距 */
+  body.ticket-page {
+    margin-left: 0 !important;
+  }
+  
+  /* 为Vue应用根元素添加左边距 */
+  #app {
+    margin-left: 0 !important;
+  }
+  
+  /* 确保所有页面内容都有足够的左边距 */
+  .main-content,
+  .page-content,
+  .container,
+  .app-container,
+  .content-wrapper,
+  .page-wrapper,
+  .main-wrapper,
+  .layout-container {
+    margin-left: 0 !important;
+  }
+  
+  /* 为可能的固定定位元素调整 */
+  .fixed-content,
+  .absolute-content {
+    left: 250px !important;
+  }
 }
 
 </style> 

@@ -133,7 +133,37 @@ export default {
         captchaError: '验证出错，请重试',
         captchaLoading: '正在加载验证组件...',
         verifyTokenSuccess: '令牌验证成功',
-        verifyTokenFailed: '令牌验证失败，请重试'
+        verifyTokenFailed: '令牌验证失败，请重试',
+        // OAuth 登录相关
+        orLoginWith: '或使用以下方式登录',
+        orRegisterWith: '或使用以下方式注册',
+        loginWithGoogle: '使用 Google 登录',
+        loginWithTelegram: '使用 Telegram 登录',
+        registerWithGoogle: '使用 Google 注册',
+        registerWithTelegram: '使用 Telegram 注册',
+        googleLoginFailed: 'Google 登录失败',
+        googleRegisterFailed: 'Google 注册失败',
+        telegramLoginFailed: 'Telegram 登录失败',
+        telegramRegisterFailed: 'Telegram 注册失败',
+        telegramLoginError: 'Telegram 登录错误',
+        telegramRegisterError: 'Telegram 注册错误',
+        telegramLoginTitle: 'Telegram 登录',
+        telegramRegisterTitle: 'Telegram 注册',
+        telegramStep1: '第一步',
+        telegramStep2: '第二步',
+        telegramStep1Desc: '复制下面的验证码（包含 /login 命令）',
+        telegramStep2Desc: '1. 打开 Telegram 应用\n2. 搜索机器人：{bot_username}\n3. 将验证码发送给机器人\n4. 等待验证完成',
+        telegramBotDesc: '官方登录机器人',
+        copyThisCode: '复制此验证码',
+        telegramChecking: '正在检查登录状态...',
+        telegramSuccess: '登录成功！',
+        telegramError: '登录失败',
+        emailRequiredTitle: '需要邮箱地址',
+        emailRequiredDesc: '请提供邮箱地址完成注册',
+        emailPlaceholder: '请输入邮箱地址',
+        completeRegistration: '完成注册',
+        registrationSuccess: '注册成功！',
+        registrationFailed: '注册失败'
     },
     validation: {
         required: '{field}不能为空',
@@ -195,7 +225,7 @@ export default {
         purchasePlan: '购买套餐',
         resetTraffic: '重置流量',
         activateDataCycleInAdvance: '提前开启流量周期',
-        resetDataCycleNotice:'点击「我知道了」将会扣除当前流量周期剩余订阅时长（按月重置时扣除本周期剩余订阅时长，每月1号重置时扣除整月时间30天，年周期同理），系统将会重置您的已使用流量。',
+        resetDataCycleNotice:'点击「我知道了」将会扣除当前剩余订阅时长，系统将会重置您的已使用流量。(牺牲剩余时间提前开启下一个流量周期，无法回退)',
         nextPeriodError:'提前开启下月失败',
         nextPeriodSuccess:'提前开启下月成功',
         renewPlan: '续费套餐',
@@ -375,6 +405,25 @@ export default {
         createdAt: '创建时间',
 
         smallScreenNotice: '检测到小屏幕设备',
+
+        // 预设选择
+        presetSelector: '必填信息',
+        softwareInfo: '软件信息',
+        deviceInfo: '设备信息',
+        networkInfo: '网络环境',
+        selectClient: '选择客户端',
+        selectOS: '选择操作系统',
+        selectCarrier: '选择运营商',
+        selectConnection: '选择连接方式',
+        clientPlaceholder: '请选择您使用的客户端',
+        osPlaceholder: '请选择您的操作系统',
+        carrierPlaceholder: '请选择您的运营商',
+        connectionPlaceholder: '请选择您的连接方式',
+        fillPreset: '使用预设信息',
+        clearPreset: '清空预设',
+        presetRequired: '请选择软件信息',
+        presetValidationError: '软件信息是必填项，请至少选择一个客户端',
+        presetPreview: '预设信息预览',
         switchToMobile: '为了获得更好的体验，建议切换到移动端视图',
         switchToMobileView: '切换到移动端视图',
 
@@ -461,7 +510,35 @@ export default {
         commandCopied: '指令已复制到剪贴板',
         iKnow: '我知道了',
         telegram: 'Telegram 通信',
-        telegramError: '获取Telegram信息失败'
+        telegramError: '获取Telegram信息失败',
+        // 邮箱更换功能
+        changeEmail: '更换邮箱',
+        changeEmailTitle: '更换邮箱地址',
+        newEmail: '新邮箱地址',
+        newEmailPlaceholder: '请输入新的邮箱地址',
+        emailCode: '邮箱验证码',
+        emailCodePlaceholder: '请输入邮箱验证码',
+        sendCode: '发送验证码',
+        emailRequired: '请输入邮箱地址',
+        emailInvalid: '邮箱格式不正确',
+        emailCodeSent: '验证码已发送',
+        emailCodeError: '验证码发送失败',
+        emailChanged: '邮箱更换成功',
+        emailChangeError: '邮箱更换失败',
+        emailCodeRequired: '请先发送并输入邮箱验证码',
+        codeSent: '已发送',
+        // Telegram邮箱警告
+        telegramEmailWarning: '检测到您使用的是Telegram注册，为了账户安全，请您务必绑定邮箱地址',
+        telegramEmailWarningDesc: '为了您的账户安全，请绑定真实邮箱地址。绑定后您将能够接收重要通知和找回密码。',
+        // 删除账户功能
+        deleteAccount: '删除账户',
+        deleteAccountTitle: '删除账户',
+        deleteAccountWarning: '此操作将永久删除您的账户和所有相关数据，包括订单、邀请码、工单等。此操作不可恢复！',
+        confirmDelete: '确认删除',
+        confirmDeletePlaceholder: '请输入 DELETE 确认删除',
+        confirmDeleteError: '请输入 DELETE 确认删除操作',
+        accountDeleted: '账户已删除',
+        deleteAccountError: '删除账户失败'
     },
     contextMenu: {
         refresh: '刷新页面',
@@ -489,7 +566,7 @@ export default {
         filter: {
             all: '全部',
             recurring: '周期性',
-            onetime: '一次性'
+            onetime: '不限时'
         },
         no_plans_found: '未找到符合条件的套餐',
         try_different_filter: '请尝试其他筛选条件',
@@ -509,7 +586,7 @@ export default {
                 year: ' / 一年',
                 two_year: ' / 两年',
                 three_year: ' / 三年',
-                onetime: ' / 一次性'
+                onetime: ' / 不限时'
             },
             price_options: {
                 month: '月付',
@@ -518,7 +595,7 @@ export default {
                 year: '一年',
                 two_year: '两年',
                 three_year: '三年',
-                onetime: '一次性',
+                onetime: '不限时',
                 reset_price: '重置流量包',
                 deposit: '充值'
             },

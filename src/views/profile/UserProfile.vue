@@ -22,7 +22,24 @@
 
       </div>
 
-
+      <!-- Telegram邮箱警告卡片 -->
+      <div v-if="showTelegramEmailWarning" class="dashboard-card warning-card telegram-email-warning">
+        <div class="card-header">
+          <h2 class="card-title">
+            <IconAlertTriangle :size="20" />
+            {{ $t('profile.telegramEmailWarning') }}
+          </h2>
+        </div>
+        <div class="card-body">
+          <p>{{ $t('profile.telegramEmailWarningDesc') }}</p>
+          <div class="warning-actions">
+            <button class="btn-primary" @click="showEmailModal = true">
+              <IconMail :size="18" />
+              {{ $t('profile.changeEmail') }}
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- 骨架屏加载状态 -->
 
@@ -328,6 +345,22 @@
 
               </button>
 
+              <button class="action-btn" @click="showEmailModal = true">
+
+                <IconMail :size="18" />
+
+                {{ $t('profile.changeEmail') }}
+
+              </button>
+
+              <button class="action-btn danger" @click="showDeleteModal = true">
+
+                <IconTrash :size="18" />
+
+                {{ $t('profile.deleteAccount') }}
+
+              </button>
+
             </div>
 
           </div>
@@ -432,7 +465,9 @@
 
             <div v-if="subscriptionUrl" class="subscription-info">
 
-              <div class="subscription-url">{{ subscriptionUrl }}</div>
+              <div class="subscription-url">
+                <span class="url-masked">订阅地址已隐藏，点击复制按钮获取完整地址</span>
+              </div>
 
             </div>
 
@@ -814,13 +849,219 @@
 
   </transition>
 
+
+
+  <!-- 更换邮箱弹窗 -->
+
+  <transition name="modal-fade">
+
+    <div v-if="showEmailModal" class="modal-overlay" @click="showEmailModal = false">
+
+      <div class="modal-content" @click.stop>
+
+        <div class="modal-header">
+
+          <h3>{{ $t('profile.changeEmailTitle') }}</h3>
+
+          <button class="modal-close" @click="showEmailModal = false">
+
+            <IconX :size="20" />
+
+          </button>
+
+        </div>
+
+        <div class="modal-body">
+
+          <div class="form-group">
+
+            <label>{{ $t('profile.newEmail') }}</label>
+
+            <input
+
+              type="email"
+
+              v-model="emailForm.newEmail"
+
+              :placeholder="$t('profile.newEmailPlaceholder')"
+
+            />
+
+          </div>
+
+          <div class="form-group">
+
+            <label>{{ $t('profile.emailCode') }}</label>
+
+            <div class="input-group">
+
+              <input
+
+                type="text"
+
+                v-model="emailForm.emailCode"
+
+                :placeholder="$t('profile.emailCodePlaceholder')"
+
+                :disabled="!emailForm.codeSent"
+
+              />
+
+              <button 
+
+                class="send-code-btn"
+
+                @click="sendEmailVerify"
+
+                :disabled="sendingCode || !emailForm.newEmail || emailForm.codeSent"
+
+              >
+
+                <span v-if="sendingCode" class="loader"></span>
+
+                {{ emailForm.codeSent ? $t('profile.codeSent') : $t('profile.sendCode') }}
+
+              </button>
+
+            </div>
+
+            <div v-if="emailForm.codeSent" class="code-sent-tip">
+
+              {{ $t('profile.emailCodeSent') }}
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button class="btn-cancel" @click="showEmailModal = false">
+
+            {{ $t('common.cancel') }}
+
+          </button>
+
+          <button
+
+            class="btn-submit"
+
+            @click="changeEmail"
+
+            :disabled="changingEmail || !validateEmailForm()"
+
+          >
+
+            <span v-if="changingEmail" class="loader"></span>
+
+            {{ $t('common.submit') }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </transition>
+
+
+
+  <!-- 删除账户弹窗 -->
+
+  <transition name="modal-fade">
+
+    <div v-if="showDeleteModal" class="modal-overlay" @click="showDeleteModal = false">
+
+      <div class="modal-content" @click.stop>
+
+        <div class="modal-header">
+
+          <h3>{{ $t('profile.deleteAccountTitle') }}</h3>
+
+          <button class="modal-close" @click="showDeleteModal = false">
+
+            <IconX :size="20" />
+
+          </button>
+
+        </div>
+
+        <div class="modal-body">
+
+          <div class="warning-message">
+
+            <IconAlertTriangle :size="24" class="warning-icon" />
+
+            <p>{{ $t('profile.deleteAccountWarning') }}</p>
+
+          </div>
+
+          <div class="form-group">
+
+            <label>{{ $t('profile.confirmDelete') }}</label>
+
+            <input
+
+              type="text"
+
+              v-model="deleteForm.confirmText"
+
+              :placeholder="$t('profile.confirmDeletePlaceholder')"
+
+            />
+
+            <div v-if="deleteForm.confirmText && deleteForm.confirmText !== 'DELETE'" class="error-text">
+
+              {{ $t('profile.confirmDeleteError') }}
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button class="btn-cancel" @click="showDeleteModal = false">
+
+            {{ $t('common.cancel') }}
+
+          </button>
+
+          <button
+
+            class="btn-submit danger"
+
+            @click="deleteAccount"
+
+            :disabled="deletingAccount || deleteForm.confirmText !== 'DELETE'"
+
+          >
+
+            <span v-if="deletingAccount" class="loader"></span>
+
+            {{ $t('profile.deleteAccount') }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </transition>
+
 </template>
 
 
 
 <script setup name="UserProfile">
 
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -844,7 +1085,11 @@ import {
 
   getTelegramBotInfo,
 
-  getUserSubscribe
+  getUserSubscribe,
+
+  deleteAccount as apiDeleteAccount,
+
+  changeEmail as apiChangeEmail
 
 } from '@/api/user';
 
@@ -872,7 +1117,11 @@ import {
 
   IconBrowser,
 
-  IconBrandTelegram
+  IconBrandTelegram,
+
+  IconMail,
+
+  IconTrash
 
 } from '@tabler/icons-vue';
 
@@ -881,6 +1130,8 @@ import useToast from '@/hooks/useToast';
 import { reloadMessages } from '@/i18n';
 
 import { DASHBOARD_CONFIG, PROFILE_CONFIG } from '@/utils/baseConfig';
+
+import { sendEmailVerify as apiSendEmailVerify } from '@/api/auth';
 
 
 
@@ -912,9 +1163,21 @@ const showPasswordModal = ref(false);
 
 const showResetModal = ref(false);
 
+const showEmailModal = ref(false);
+
+const showDeleteModal = ref(false);
+
+const showTelegramEmailWarning = ref(false);
+
 const changingPassword = ref(false);
 
 const resetting = ref(false);
+
+const changingEmail = ref(false);
+
+const deletingAccount = ref(false);
+
+const sendingCode = ref(false);
 
 const remindExpire = ref(false);
 
@@ -976,6 +1239,26 @@ const passwordForm = ref({
 
 
 
+const emailForm = ref({
+
+  newEmail: '',
+
+  emailCode: '',
+
+  codeSent: false
+
+});
+
+
+
+const deleteForm = ref({
+
+  confirmText: ''
+
+});
+
+
+
 const passwordMismatch = computed(() => {
 
   if (!passwordForm.value.confirmPassword) return false;
@@ -999,6 +1282,20 @@ const validatePasswordForm = () => {
     !passwordMismatch.value
 
   );
+
+};
+
+
+
+const validateEmailForm = () => {
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  return emailRegex.test(emailForm.value.newEmail) && 
+
+         emailForm.value.codeSent && 
+
+         emailForm.value.emailCode.trim() !== '';
 
 };
 
@@ -1096,6 +1393,113 @@ const checkOpenPasswordModal = () => {
 
   }
 
+};
+
+// 检查Telegram注册用户的邮箱
+const checkTelegramEmail = () => {
+  if (userInfo.value.email && userInfo.value.email.startsWith('tg_')) {
+    // 显示警告卡片
+    showTelegramEmailWarning.value = true;
+    // 显示持续的toast提示（不允许关闭）
+    showPersistentTelegramWarning();
+  } else {
+    // 如果邮箱不是tg_开头，隐藏警告卡片和toast
+    showTelegramEmailWarning.value = false;
+    hidePersistentTelegramWarning();
+  }
+};
+
+// 显示持续的Telegram警告toast
+const showPersistentTelegramWarning = () => {
+  // 清除之前的toast
+  hidePersistentTelegramWarning();
+  
+  // 创建持续的toast提示
+  const toastElement = document.createElement('div');
+  toastElement.id = 'telegram-email-warning-toast';
+  toastElement.className = 'toast-persistent telegram-warning-toast';
+  toastElement.innerHTML = `
+    <div class="toast-content">
+      <div class="toast-icon">⚠️</div>
+      <div class="toast-message">
+        <strong>${t('profile.telegramEmailWarning')}</strong>
+        <br>
+        <small>${t('profile.telegramEmailWarningDesc')}</small>
+      </div>
+    </div>
+  `;
+  
+  // 添加到页面
+  document.body.appendChild(toastElement);
+  
+  // 添加样式
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast-persistent {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #f59e0b;
+      border-left: 4px solid #f59e0b;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      animation: slideInRight 0.3s ease-out;
+    }
+    
+    .toast-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    
+    .toast-message {
+      color: #92400e;
+      line-height: 1.4;
+    }
+    
+    .toast-message strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .toast-message small {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+  
+  if (!document.getElementById('telegram-warning-toast-style')) {
+    style.id = 'telegram-warning-toast-style';
+    document.head.appendChild(style);
+  }
+};
+
+// 隐藏持续的Telegram警告toast
+const hidePersistentTelegramWarning = () => {
+  const existingToast = document.getElementById('telegram-email-warning-toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
 };
 
 
@@ -1770,6 +2174,201 @@ const formatTimestamp = (timestamp) => {
 
 
 
+// 发送邮箱验证码
+
+const sendEmailVerify = async () => {
+
+  if (!emailForm.value.newEmail) {
+
+    showError(t('profile.emailRequired'));
+
+    return;
+
+  }
+
+
+
+  sendingCode.value = true;
+
+
+
+  try {
+
+    const response = await apiSendEmailVerify({ email: emailForm.value.newEmail });
+
+
+
+    if (response && response.data) {
+
+      success(t('profile.emailCodeSent'));
+
+      emailForm.value.codeSent = true;
+
+    }
+
+  } catch (err) {
+
+    console.error('Failed to send email verify:', err);
+
+    showError(t('profile.emailCodeError'));
+
+  } finally {
+
+    sendingCode.value = false;
+
+  }
+
+};
+
+
+
+// 更换邮箱
+
+const changeEmail = async () => {
+
+  if (!validateEmailForm()) {
+
+    if (!emailForm.value.codeSent) {
+
+      showError(t('profile.emailCodeRequired'));
+
+    } else if (!emailForm.value.emailCode.trim()) {
+
+      showError(t('profile.emailCodeRequired'));
+
+    } else {
+
+      showError(t('profile.emailInvalid'));
+
+    }
+
+    return;
+
+  }
+
+
+
+  changingEmail.value = true;
+
+
+
+  try {
+
+    const data = {
+
+      new_email: emailForm.value.newEmail,
+
+      email_code: emailForm.value.emailCode
+
+    };
+
+
+
+    const response = await apiChangeEmail(data);
+
+
+
+    if (response && response.data) {
+
+      success(t('profile.emailChanged'));
+
+      emailForm.value = {
+
+        newEmail: '',
+
+        emailCode: '',
+
+        codeSent: false
+
+      };
+
+      showEmailModal.value = false;
+
+      await fetchUserInfo(false);
+      
+      // 重新检查邮箱状态
+      checkTelegramEmail();
+
+    }
+
+  } catch (err) {
+
+    console.error('Failed to change email:', err);
+
+    showError(t('profile.emailChangeError'));
+
+  } finally {
+
+    changingEmail.value = false;
+
+  }
+
+};
+
+
+
+// 删除账户
+
+const deleteAccount = async () => {
+
+  if (deleteForm.value.confirmText !== 'DELETE') {
+
+    showError(t('profile.confirmDeleteError'));
+
+    return;
+
+  }
+
+
+
+  deletingAccount.value = true;
+
+
+
+  try {
+
+    const response = await apiDeleteAccount();
+
+
+
+    if (response && response.data) {
+
+      success(t('profile.accountDeleted'));
+
+      // 清除所有认证数据并跳转到登录页
+
+      localStorage.removeItem('token');
+
+      localStorage.removeItem('auth_data');
+
+      localStorage.removeItem('userInfo');
+
+      localStorage.removeItem('is_admin');
+
+      sessionStorage.clear();
+
+      // 跳转到登录页
+
+      window.location.href = '/#/login';
+
+    }
+
+  } catch (err) {
+
+    console.error('Failed to delete account:', err);
+
+    showError(t('profile.deleteAccountError'));
+
+  } finally {
+
+    deletingAccount.value = false;
+
+  }
+
+};
+
+
+
 onMounted(() => {
 
   loading.value = true;
@@ -1786,9 +2385,22 @@ onMounted(() => {
     loading.value = false;
 
     checkOpenPasswordModal();
+    
+    // 检查Telegram注册用户的邮箱，如果是tg_开头则强制更换邮箱
+    checkTelegramEmail();
 
   });
 
+});
+
+// 组件卸载时清理toast
+onBeforeUnmount(() => {
+  hidePersistentTelegramWarning();
+});
+
+// 页面切换时清理toast
+watch(() => route.path, () => {
+  hidePersistentTelegramWarning();
 });
 
 </script>
@@ -3901,6 +4513,149 @@ body.dark-theme {
 
   }
 
+  .url-masked {
+    color: var(--secondary-text-color);
+    font-style: italic;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+}
+
+
+
+// 邮箱更换相关样式
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  input {
+    flex: 1;
+    
+    &:disabled {
+      background-color: rgba(var(--border-color-rgb), 0.1);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  .send-code-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: rgba(var(--theme-color-rgb), 0.1);
+    color: var(--theme-color);
+    border: 1px solid rgba(var(--theme-color-rgb), 0.2);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(var(--theme-color-rgb), 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      background-color: rgba(var(--theme-color-rgb), 0.05);
+    }
+
+    .loader {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(var(--theme-color-rgb), 0.3);
+      border-radius: 50%;
+      border-top-color: var(--theme-color);
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+.code-sent-tip {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  color: #4caf50;
+  font-size: 13px;
+  text-align: center;
+}
+
+
+
+// 删除账户警告样式
+
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  .warning-icon {
+    color: #f44336;
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    color: #f44336;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+// Telegram邮箱警告样式
+.telegram-email-warning {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  
+  .card-header {
+    .card-title {
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .card-body {
+    p {
+      color: #92400e;
+      margin-bottom: 16px;
+    }
+  }
+  
+  .warning-actions {
+    display: flex;
+    gap: 12px;
+    
+    .btn-primary {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: #d97706;
+        transform: translateY(-1px);
+      }
+    }
+  }
 }
 
 </style>

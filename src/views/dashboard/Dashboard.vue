@@ -225,6 +225,16 @@
               <span class="close-icon"></span>
             </button>
           </div>
+          
+          <!-- 重要提示 -->
+          <div class="import-warning" v-if="importWarning.title">
+            <div class="warning-icon">{{ importWarning.icon }}</div>
+            <div class="warning-content">
+              <div class="warning-title">{{ importWarning.title }}</div>
+              <div class="warning-text">{{ importWarning.content }}</div>
+            </div>
+          </div>
+          
           <div class="card-body">
             <div class="import-action copy-action" @click="copySubscription">
               <div class="import-icon">
@@ -869,8 +879,21 @@ export default {
     });
     const qrCodeLoading = ref(true);
     const showImportSubscription = ref(DASHBOARD_CONFIG.showImportSubscription)
+    
+    // 导入订阅警告信息
+    const importWarning = ref({
+      title: '',
+      content: '',
+      type: 'warning',
+      icon: '⚠️'
+    });
 
     const languageChangedSignal = inject('languageChangedSignal', ref(0));
+
+    // 组件挂载时加载导入警告信息
+    onMounted(() => {
+      loadImportWarning();
+    });
 
     const shadowrocketIcon = shadowrocketIconImg;
     const surgeIcon = surgeIconImg;
@@ -981,6 +1004,51 @@ export default {
 
     const openDocumentation = () => {
       router.push('/docs');
+    };
+
+    // 加载导入订阅警告信息
+    const loadImportWarning = async () => {
+      try {
+        const response = await fetch('/daorutishi.txt');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        
+        const warningData = {};
+        lines.forEach(line => {
+          if (line.includes(':')) {
+            const [key, ...valueParts] = line.split(':');
+            const value = valueParts.join(':').trim();
+            
+            switch (key.trim()) {
+              case 'title': warningData.title = value; break;
+              case 'content': warningData.content = value; break;
+              case 'type': warningData.type = value; break;
+              case 'icon': warningData.icon = value; break;
+            }
+          }
+        });
+        
+        if (warningData.title && warningData.content) {
+          importWarning.value = {
+            title: warningData.title,
+            content: warningData.content,
+            type: warningData.type || 'warning',
+            icon: warningData.icon || '⚠️'
+          };
+        }
+      } catch (e) {
+        console.error('加载导入警告信息失败:', e);
+        // 使用默认值
+        importWarning.value = {
+          title: '重要提示',
+          content: '必看！！！订阅地址为一次性链接，导入客户端后即失效，无法自动更新。如后续需更新节点，请前往这里重新获取订阅地址并导入。',
+          type: 'warning',
+          icon: '⚠️'
+        };
+      }
     };
 
     const downloadClient = (platform) => {
@@ -1625,14 +1693,72 @@ export default {
         }
 
         if (url) {
-          if (shouldUseCurrentWindow) {
-            window.location.href = url;
-          } else {
-            window.open(url, '_blank');
+          // 显示提示信息
+          showToast('正在尝试打开客户端...', 'info', 2000);
+          
+          // 创建一个隐藏的链接来测试应用是否安装
+          const testLink = document.createElement('a');
+          testLink.href = url;
+          testLink.style.display = 'none';
+          document.body.appendChild(testLink);
+          
+          // 尝试打开应用
+          const startTime = Date.now();
+          let appOpened = false;
+          
+          // 监听页面可见性变化，如果应用打开成功，页面会失去焦点
+          const handleVisibilityChange = () => {
+            if (document.hidden) {
+              appOpened = true;
+              document.removeEventListener('visibilitychange', handleVisibilityChange);
+            }
+          };
+          
+          document.addEventListener('visibilitychange', handleVisibilityChange);
+          
+          // 尝试打开应用
+          try {
+            if (shouldUseCurrentWindow) {
+              window.location.href = url;
+            } else {
+              window.open(url, '_blank');
+            }
+          } catch (e) {
+            console.error('打开应用失败:', e);
           }
+          
+          // 3秒后检查是否成功打开应用
+          setTimeout(() => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.body.removeChild(testLink);
+            
+            if (!appOpened) {
+              // 如果应用没有打开，提供备用方案
+              showToast('无法自动打开客户端，请手动复制订阅链接', 'warning', 5000);
+              
+              // 自动复制到剪贴板作为备用方案
+              navigator.clipboard.writeText(subscribeUrl)
+                .then(() => {
+                  showToast('订阅链接已复制到剪贴板，请手动粘贴到客户端', 'success', 5000);
+                })
+                .catch(() => {
+                  showToast('请手动复制订阅链接: ' + subscribeUrl, 'error', 8000);
+                });
+            }
+          }, 3000);
         }
       } catch (error) {
         console.error('导入客户端失败:', error);
+        showToast('导入失败，请尝试手动复制订阅链接', 'error', 5000);
+        
+        // 提供备用方案
+        navigator.clipboard.writeText(subscribeUrl)
+          .then(() => {
+            showToast('订阅链接已复制到剪贴板', 'success', 3000);
+          })
+          .catch(() => {
+            showToast('请手动复制订阅链接: ' + subscribeUrl, 'error', 8000);
+          });
       }
     };
 
@@ -1955,6 +2081,8 @@ export default {
       DASHBOARD_CONFIG,
       allowNewPeriod,
       showImportSubscription,
+      importWarning,
+      loadImportWarning,
     };
   }
 };
@@ -4066,6 +4194,53 @@ a.eztheme-btn {
 
 .stats-card.balance-card .stats-value {
   color: var(--theme-color);
+}
+
+/* 导入订阅警告提示样式 */
+.import-warning {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: warningPulse 2s ease-in-out infinite;
+}
+
+.warning-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #ff8f00;
+  margin-bottom: 6px;
+}
+
+.warning-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    border-color: rgba(255, 193, 7, 0.3);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+  }
+  50% {
+    border-color: rgba(255, 193, 7, 0.5);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.15));
+  }
 }
 </style>
 

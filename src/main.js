@@ -19,7 +19,7 @@ const enableAntiDebugging = process.env.VUE_APP_DEBUGGING == "true";
     }
     
     // ⚠️ 确保在 config 加载后再初始化应用
-    await import('./appInit.js');
+    const appInit = await import('./appInit.js');
   } catch (error) {
     console.error(error);
   }

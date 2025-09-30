@@ -1,0 +1,45 @@
+name: 新用户专享优惠券
+discount: 1
+unit: 折
+type: 折扣券
+description: 新用户首次购买享受8折优惠
+validPlans: 所有套餐
+endDate: 2025-12-31T23:59:00
+specialNote: 仅限新注册用户使用，不可与其他优惠叠加
+couponCode: NEWUSER8
+
+---
+
+name: 限时特价优惠
+discount: 50
+unit: 元
+type: 满减券
+description: 满100元立减50元
+validPlans: 月付套餐、季付套餐
+endDate: 2024-12-25T18:00:00
+specialNote: 仅限月付和季付套餐使用
+couponCode: SAVE50
+
+---
+
+name: 年付套餐优惠
+discount: 20
+unit: 折
+type: 折扣券
+description: 年付套餐专享8折优惠
+validPlans: 年付套餐
+endDate: 2024-12-20T20:30:00
+specialNote: 仅限年付套餐，可与新用户优惠叠加
+couponCode: YEAR20
+
+---
+
+name: 节日特惠券
+discount: 30
+unit: 元
+type: 满减券
+description: 节日特惠，满200元减30元
+validPlans: 所有套餐
+endDate: 2024-12-15T12:00:00
+specialNote: 节日期间限时使用
+couponCode: FESTIVAL30

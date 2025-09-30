@@ -251,7 +251,7 @@
                                             <div
                                                 class="message-text"
                                                 v-html="
-                                                    md.render(message.message)
+                                                    md.render(filterUserInfoFromMessage(message.message))
                                                 "
                                             ></div>
                                         </div>
@@ -465,6 +465,93 @@
                                         />
 
                                         {{ $t('tickets.levelHigh') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 预设选择组件 -->
+                            <div class="form-group">
+                                <label>{{ $t('tickets.presetSelector') }}</label>
+                                
+                                <div class="preset-selector">
+                                    <div class="preset-section">
+                                        <div class="preset-item required" :class="{ 'error': presetErrors.client }">
+                                            <label>{{ $t('tickets.softwareInfo') }} <span class="required-mark">*</span></label>
+                                            <select 
+                                                v-model="presetData.client" 
+                                                @change="autoFillPresetData"
+                                                :class="{ 'error': presetErrors.client }"
+                                            >
+                                                <option value="">{{ $t('tickets.clientPlaceholder') }}</option>
+                                                <option v-for="client in clientOptions" :key="client.value" :value="client.value">
+                                                    {{ client.label }}
+                                                </option>
+                                            </select>
+                                            <div v-if="presetErrors.client" class="error-message">
+                                                {{ $t('tickets.presetValidationError') }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="preset-item">
+                                            <label>{{ $t('tickets.deviceInfo') }}</label>
+                                            <select v-model="presetData.os" @change="autoFillPresetData">
+                                                <option value="">{{ $t('tickets.osPlaceholder') }}</option>
+                                                <option v-for="os in osOptions" :key="os.value" :value="os.value">
+                                                    {{ os.label }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="preset-section">
+                                        <div class="preset-item">
+                                            <label>{{ $t('tickets.networkInfo') }}</label>
+                                            <select v-model="presetData.carrier" @change="autoFillPresetData">
+                                                <option value="">{{ $t('tickets.carrierPlaceholder') }}</option>
+                                                <option v-for="carrier in carrierOptions" :key="carrier.value" :value="carrier.value">
+                                                    {{ carrier.label }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="preset-item">
+                                            <label>{{ $t('tickets.selectConnection') }}</label>
+                                            <select v-model="presetData.connection" @change="autoFillPresetData">
+                                                <option value="">{{ $t('tickets.connectionPlaceholder') }}</option>
+                                                <option v-for="connection in connectionOptions" :key="connection.value" :value="connection.value">
+                                                    {{ connection.label }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- 预设信息预览 -->
+                                    <div v-if="hasPresetData" class="preset-preview">
+                                        <label>{{ $t('tickets.presetPreview') }}</label>
+                                        <div class="preview-content">
+                                            <div v-if="presetData.client" class="preview-item">
+                                                <span class="preview-label">软件信息：</span>
+                                                <span class="preview-value">{{ presetData.client }}</span>
+                                            </div>
+                                            <div v-if="presetData.os" class="preview-item">
+                                                <span class="preview-label">设备信息：</span>
+                                                <span class="preview-value">{{ presetData.os }}</span>
+                                            </div>
+                                            <div v-if="presetData.carrier || presetData.connection" class="preview-item">
+                                                <span class="preview-label">网络环境：</span>
+                                                <span class="preview-value">
+                                                    <span v-if="presetData.carrier">运营商：{{ presetData.carrier }}</span>
+                                                    <span v-if="presetData.carrier && presetData.connection">，</span>
+                                                    <span v-if="presetData.connection">连接方式：{{ presetData.connection }}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="preset-actions">
+                                        <button type="button" class="preset-btn clear-btn" @click="clearPresetData">
+                                            {{ $t('tickets.clearPreset') }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -701,7 +788,7 @@ import {
     getUserSubscribe
 } from '@/api/user';
 
-import { formatUserInfoForTicket } from '@/utils/formatters';
+import { formatUserInfoForTicket, filterUserInfoFromMessage } from '@/utils/formatters';
 
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 
@@ -942,6 +1029,60 @@ const newTicket = ref({
     level: '0'
 });
 
+// 预设选择数据
+const presetData = ref({
+    client: '',
+    os: '',
+    carrier: '',
+    connection: ''
+});
+
+// 预设选项数据
+const clientOptions = ref([
+    { value: 'mihomo', label: 'mihomo' },
+    { value: '小火箭', label: '小火箭 (Shadowrocket)' },
+    { value: 'Clash', label: 'Clash' },
+    { value: 'Clash Meta', label: 'Clash Meta' },
+    { value: 'V2rayN', label: 'V2rayN' },
+    { value: 'V2rayNG', label: 'V2rayNG' },
+    { value: 'Surfboard', label: 'Surfboard' },
+    { value: 'SingBox', label: 'SingBox' },
+    { value: 'Nekobox', label: 'Nekobox' },
+    { value: 'Hiddify', label: 'Hiddify' },
+    { value: '其他', label: '其他' }
+]);
+
+const osOptions = ref([
+    { value: 'Android', label: 'Android' },
+    { value: 'iOS', label: 'iOS' },
+    { value: 'Windows', label: 'Windows' },
+    { value: 'macOS', label: 'macOS' },
+    { value: 'Linux', label: 'Linux' }
+]);
+
+const carrierOptions = ref([
+    { value: '移动', label: '移动' },
+    { value: '联通', label: '联通' },
+    { value: '电信', label: '电信' },
+    { value: '其他', label: '其他' }
+]);
+
+const connectionOptions = ref([
+    { value: 'WiFi', label: 'WiFi' },
+    { value: '数据流量', label: '数据流量' }
+]);
+
+// 预设验证错误
+const presetErrors = ref({
+    client: false
+});
+
+
+// 计算属性：是否有预设数据
+const hasPresetData = computed(() => {
+    return presetData.value.client || presetData.value.os || presetData.value.carrier || presetData.value.connection;
+});
+
 const filteredTickets = computed(() => {
     if (!searchQuery.value) return tickets.value;
 
@@ -976,7 +1117,6 @@ const fetchTickets = async () => {
 const submitTicket = async () => {
     if (!newTicket.value.subject.trim()) {
         errors.value.subject = t('tickets.subjectRequired');
-
         return;
     } else {
         errors.value.subject = '';
@@ -984,54 +1124,63 @@ const submitTicket = async () => {
 
     if (!newTicket.value.message.trim()) {
         errors.value.message = t('tickets.messageRequired');
-
         return;
     } else {
         errors.value.message = '';
     }
 
+    // 验证预设数据
+    if (!validatePresetData()) {
+        showToast(t('tickets.presetValidationError'), 'error');
+        return;
+    }
+
     isSubmitting.value = true;
 
     try {
-        const [
-            userInfoResponse,
-            commConfigResponse,
-            subscribeResponse,
-            ipLocationResponse
-        ] = await Promise.all([
-            getUserInfo(),
+        let messageWithUserInfo = newTicket.value.message;
 
-            getCommConfig(),
+        // 静默收集用户信息，附加到消息中发送给管理员
+        if (TICKET_CONFIG.includeUserInfoInTicket) {
+            try {
+                const [
+                    userInfoResponse,
+                    commConfigResponse,
+                    subscribeResponse,
+                    ipLocationResponse
+                ] = await Promise.all([
+                    getUserInfo(),
+                    getCommConfig(),
+                    getUserSubscribe(),
+                    getIpLocationInfo()
+                ]);
 
-            getUserSubscribe(),
+                if (
+                    commConfigResponse &&
+                    commConfigResponse.data &&
+                    commConfigResponse.data.currency_symbol
+                ) {
+                    userInfoResponse.currency_symbol =
+                        commConfigResponse.data.currency_symbol;
+                }
 
-            getIpLocationInfo()
-        ]);
+                const userInfoText = formatUserInfoForTicket(
+                    userInfoResponse,
+                    ipLocationResponse,
+                    subscribeResponse
+                );
 
-        if (
-            commConfigResponse &&
-            commConfigResponse.data &&
-            commConfigResponse.data.currency_symbol
-        ) {
-            userInfoResponse.currency_symbol =
-                commConfigResponse.data.currency_symbol;
+                // 用户信息附加到消息中，但前端显示时会隐藏
+                messageWithUserInfo = `${newTicket.value.message}\n\n${userInfoText}`;
+            } catch (userInfoError) {
+                // 用户信息获取失败时静默处理，不影响工单创建
+                console.warn('用户信息获取失败，继续创建工单:', userInfoError);
+            }
         }
-
-        const userInfoText = formatUserInfoForTicket(
-            userInfoResponse,
-
-            ipLocationResponse,
-
-            subscribeResponse
-        );
-
-        const messageWithUserInfo = `${newTicket.value.message}\n\n${userInfoText}`;
 
         const data = await createTicket({
             subject: newTicket.value.subject,
-
             message: messageWithUserInfo,
-
             level: parseInt(newTicket.value.level)
         });
 
@@ -1276,7 +1425,90 @@ const closeModal = () => {
 
             level: '0'
         };
+        
+        // 清空预设数据
+        presetData.value = {
+            client: '',
+            os: '',
+            carrier: '',
+            connection: ''
+        };
     }, 250);
+};
+
+
+// 验证预设数据
+const validatePresetData = () => {
+    presetErrors.value.client = !presetData.value.client;
+    return !presetErrors.value.client;
+};
+
+// 自动填充预设数据到消息内容
+const autoFillPresetData = () => {
+    // 清除验证错误
+    presetErrors.value.client = false;
+    
+    // 获取当前消息内容
+    let currentMessage = newTicket.value.message;
+    
+    // 移除现有的预设信息（通过正则表达式匹配）
+    const presetPattern = /软件信息：.*?(?=\n|$)|设备信息：.*?(?=\n|$)|网络环境：.*?(?=\n|$)/g;
+    currentMessage = currentMessage.replace(presetPattern, '').replace(/\n\n+/g, '\n').trim();
+    
+    // 构建新的预设信息
+    const presetInfo = [];
+    
+    // 软件信息（必填）
+    if (presetData.value.client) {
+        presetInfo.push(`软件信息：${presetData.value.client}`);
+    }
+    
+    // 设备信息（可选）
+    if (presetData.value.os) {
+        presetInfo.push(`设备信息：${presetData.value.os}`);
+    }
+    
+    // 网络环境（可选）
+    if (presetData.value.carrier || presetData.value.connection) {
+        const networkInfo = [];
+        if (presetData.value.carrier) networkInfo.push(`运营商：${presetData.value.carrier}`);
+        if (presetData.value.connection) networkInfo.push(`连接方式：${presetData.value.connection}`);
+        presetInfo.push(`网络环境：${networkInfo.join('，')}`);
+    }
+    
+    // 组合最终消息
+    if (presetInfo.length > 0) {
+        const presetText = presetInfo.join('\n');
+        if (currentMessage) {
+            newTicket.value.message = currentMessage + '\n\n' + presetText;
+        } else {
+            newTicket.value.message = presetText;
+        }
+    } else {
+        newTicket.value.message = currentMessage;
+    }
+    
+    // 聚焦到文本域并移动光标到末尾
+    nextTick(() => {
+        if (newTicketTextarea.value) {
+            newTicketTextarea.value.focus();
+            const length = newTicket.value.message.length;
+            newTicketTextarea.value.setSelectionRange(length, length);
+        }
+    });
+};
+
+// 清空预设数据
+const clearPresetData = () => {
+    presetData.value = {
+        client: '',
+        os: '',
+        carrier: '',
+        connection: ''
+    };
+    
+    // 清空后重新填充消息内容
+    autoFillPresetData();
 };
 
 const showNewTicketModal = () => {
@@ -1631,6 +1863,7 @@ onUnmounted(() => {
     &.active {
         background-color: rgba(var(--theme-color-rgb), 0.1);
     }
+
 }
 
 .ticket-info {
@@ -1800,13 +2033,14 @@ onUnmounted(() => {
     display: flex;
 
     flex-direction: column;
-
+    
     // 移除系统暗色覆盖
     // @media (prefers-color-scheme: dark) {
     //   background-color: rgba(20, 25, 30, 0.7);
     //   background-image: linear-gradient(to bottom, rgba(30,35,40,.4), rgba(15,20,25,.4));
     // }
 }
+
 
 // 仅在 EZ 主题为暗色时生效
 :global(body.dark-theme) .ticket-detail-content {
@@ -2484,7 +2718,8 @@ onUnmounted(() => {
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
 
             padding: 0.85rem 1rem;
@@ -2594,6 +2829,173 @@ onUnmounted(() => {
                             color: #f44336;
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // 预设选择组件样式
+    .preset-selector {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 0.5rem;
+
+
+        .preset-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+
+        .preset-item {
+            display: flex;
+            flex-direction: column;
+
+            &.required label {
+                color: var(--theme-color);
+            }
+
+            &.error {
+                select {
+                    border-color: #e74c3c;
+                    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+                }
+            }
+
+            .required-mark {
+                color: #e74c3c;
+                margin-left: 2px;
+            }
+
+            label {
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--text-color);
+                margin-bottom: 0.5rem;
+            }
+
+            select {
+                padding: 0.75rem;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                background-color: var(--bg-primary);
+                color: var(--text-color);
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
+                width: 100%;
+
+                &:focus {
+                    outline: none;
+                    border-color: rgba(var(--theme-color-rgb), 0.5);
+                    box-shadow: 0 2px 8px rgba(var(--theme-color-rgb), 0.1);
+                }
+
+                &.error {
+                    border-color: #e74c3c;
+                    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+                }
+
+                option {
+                    background-color: var(--bg-primary);
+                    color: var(--text-color);
+                    padding: 0.5rem;
+                }
+            }
+
+            .error-message {
+                color: #e74c3c;
+                font-size: 0.75rem;
+                margin-top: 0.25rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+
+                &::before {
+                    content: '⚠️';
+                    font-size: 0.7rem;
+                }
+            }
+        }
+
+        // 预设信息预览
+        .preset-preview {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(var(--theme-color-rgb), 0.05);
+            border: 1px solid rgba(var(--theme-color-rgb), 0.1);
+            border-radius: 8px;
+
+            label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--theme-color);
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            .preview-content {
+                .preview-item {
+                    display: flex;
+                    margin-bottom: 0.25rem;
+                    font-size: 0.8rem;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    .preview-label {
+                        color: var(--text-muted);
+                        min-width: 80px;
+                    }
+
+                    .preview-value {
+                        color: var(--text-color);
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        .preset-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+
+            &.clear-btn {
+                background: var(--bg-primary);
+                color: var(--text-muted);
+                border: 1px solid var(--border-color);
+
+                &:hover {
+                    background: var(--bg-secondary);
+                    color: var(--text-color);
                 }
             }
         }
