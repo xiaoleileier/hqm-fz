@@ -81,7 +81,7 @@ import { useTheme } from '@/composables/useTheme';
 import { useRouter, useRoute } from 'vue-router';
 import { SITE_CONFIG, PROFILE_CONFIG, CUSTOMER_SERVICE_CONFIG } from '@/utils/baseConfig';
 import { checkAuthAndReloadMessages } from '@/utils/authUtils';
-import { checkUserLoginStatus } from '@/api/auth';
+import { checkUserLoginStatus, checkOAuthCallback, handleGoogleOAuthCallback } from '@/api/auth';
 import { handleRedirectPath } from '@/utils/redirectHandler';
 import Toast from '@/components/common/Toast.vue';
 import IconDefinitions from '@/components/icons/IconDefinitions.vue';
@@ -171,6 +171,77 @@ export default {
       }
     };
     
+    const handleOAuthCallback = async () => {
+      try {
+        const oauthCallback = checkOAuthCallback();
+        
+        if (oauthCallback.isOAuthCallback) {
+          if (oauthCallback.hasError) {
+            console.error('OAuth授权失败:', oauthCallback.error);
+            const { showToast } = require('@/composables/useToast').useToast();
+            if (showToast) {
+              showToast(`OAuth授权失败: ${oauthCallback.error}`, 'error');
+            }
+            return;
+          }
+          
+          if (oauthCallback.code) {
+            console.log('处理OAuth回调:', oauthCallback.code);
+            
+            try {
+              const response = await handleGoogleOAuthCallback(oauthCallback.code, oauthCallback.state);
+              
+              if (response && response.data) {
+                // 保存登录信息
+                if (response.data.token) {
+                  localStorage.setItem('token', response.data.token);
+                }
+                if (response.data.auth_data) {
+                  localStorage.setItem('auth_data', response.data.auth_data);
+                }
+                if (response.data.is_admin) {
+                  localStorage.setItem('is_admin', response.data.is_admin);
+                }
+                
+                // 通知父窗口登录成功
+                if (window.opener) {
+                  window.opener.postMessage({
+                    type: 'OAUTH_SUCCESS',
+                    token: response.data.token,
+                    auth_data: response.data.auth_data,
+                    is_admin: response.data.is_admin
+                  }, window.location.origin);
+                  window.close();
+                } else {
+                  // 清除URL参数并跳转到dashboard
+                  const cleanUrl = window.location.origin + '/#/dashboard';
+                  window.history.replaceState({}, document.title, cleanUrl);
+                  router.push('/dashboard');
+                }
+              }
+            } catch (error) {
+              console.error('OAuth回调处理失败:', error);
+              const { showToast } = require('@/composables/useToast').useToast();
+              if (showToast) {
+                showToast('OAuth登录失败', 'error');
+              }
+              
+              // 通知父窗口登录失败
+              if (window.opener) {
+                window.opener.postMessage({
+                  type: 'OAUTH_ERROR',
+                  error: error.message || 'OAuth登录失败'
+                }, window.location.origin);
+                window.close();
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('OAuth回调检查失败:', error);
+      }
+    };
+    
     watch(() => route.fullPath, () => {
       handleRedirectParam();
     });
@@ -242,6 +313,8 @@ export default {
       });
       
       handleRedirectParam();
+      
+      // OAuth回调现在由路由守卫统一处理
     });
     
     onUnmounted(() => {

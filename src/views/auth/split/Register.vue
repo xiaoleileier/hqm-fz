@@ -1814,6 +1814,8 @@ export default {
 
 
     onMounted(() => {
+      // 首先处理OAuth回调，优先级最高
+      handleOAuthCallback();
 
 
 
@@ -1955,7 +1957,113 @@ export default {
 
     });
 
-
+    // OAuth回调处理
+    const handleOAuthCallback = async () => {
+      // 检查URL参数
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      // 处理OAuth成功 - 检查是否有token参数
+      const token = urlParams.get('token');
+      const authData = urlParams.get('auth_data');
+      const isAdmin = urlParams.get('is_admin');
+      
+      if (token) {
+        
+        // 保存认证信息
+        localStorage.setItem('token', token);
+        if (authData) {
+          localStorage.setItem('auth_data', authData);
+        }
+        if (isAdmin) {
+          localStorage.setItem('is_admin', isAdmin);
+        }
+        
+        // 设置登录状态标志，确保checkLoginStatus返回true
+        window.isUserLoggedIn = true;
+        
+        // 清除URL参数
+        clearUrlParams();
+        
+        // 等待localStorage写入完成
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // 重新加载语言文件（登录后需要加载完整的语言文件）
+        try {
+          const { reloadMessages } = await import('@/i18n');
+          await reloadMessages();
+          
+          // 等待语言变化事件处理完成
+          await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+          console.warn('重新加载语言文件失败:', error);
+        }
+        
+        // 立即跳转，语言文件会在后台加载
+        router.push('/dashboard');
+        showToast(t('auth.registerSuccess'), 'success');
+        return;
+      }
+      
+      // 处理OAuth成功 - 检查success参数
+      if (urlParams.get('success') === '1') {
+        const successToken = urlParams.get('token');
+        const successAuthData = urlParams.get('auth_data');
+        const successIsAdmin = urlParams.get('is_admin');
+        
+        if (successToken) {
+          // 保存认证信息
+          localStorage.setItem('token', successToken);
+          if (successAuthData) {
+            localStorage.setItem('auth_data', successAuthData);
+          }
+          if (successIsAdmin) {
+            localStorage.setItem('is_admin', successIsAdmin);
+          }
+          
+          // 设置登录状态标志，确保checkLoginStatus返回true
+          window.isUserLoggedIn = true;
+          
+          // 清除URL参数
+          clearUrlParams();
+          
+          // 等待localStorage写入完成
+          await new Promise(resolve => setTimeout(resolve, 50));
+          
+          // 重新加载语言文件（登录后需要加载完整的语言文件）
+          try {
+            const { reloadMessages } = await import('@/i18n');
+            await reloadMessages();
+            
+            // 等待语言变化事件处理完成
+            await new Promise(resolve => setTimeout(resolve, 200));
+          } catch (error) {
+            console.warn('重新加载语言文件失败:', error);
+          }
+          
+          // 立即跳转，语言文件会在后台加载
+          router.push('/dashboard');
+          showToast(t('auth.registerSuccess'), 'success');
+        }
+      }
+      
+      // 处理OAuth失败
+      if (urlParams.get('error') === 'oauth_failed') {
+        showToast(t('auth.googleRegisterFailed'), 'error');
+        clearUrlParams();
+      }
+    };
+    
+    // 清除URL参数
+    const clearUrlParams = () => {
+      const url = new URL(window.location);
+      url.searchParams.delete('success');
+      url.searchParams.delete('error');
+      url.searchParams.delete('token');
+      url.searchParams.delete('auth_data');
+      url.searchParams.delete('is_admin');
+      
+      window.history.replaceState({}, '', url);
+    };
 
     onActivated(() => {
 
@@ -2466,31 +2574,19 @@ export default {
     const handleGoogleRegister = async () => {
       try {
         const inviteCode = router.currentRoute.value.query.invite_code || '';
-        const redirectUrl = window.location.origin + '/dashboard';
+        const redirectUrl = window.location.origin + '/#/register';
         
+        // 1. 获取Google授权URL
         const response = await getGoogleAuthUrl(inviteCode, redirectUrl);
         
         if (response && response.data && response.data.url) {
-          const authWindow = window.open(
-            response.data.url,
-            'googleAuth',
-            'width=500,height=600,scrollbars=yes,resizable=yes'
-          );
-          
-          // 监听窗口关闭
-          const checkAuth = setInterval(() => {
-            if (authWindow.closed) {
-              clearInterval(checkAuth);
-              // 检查登录状态
-              checkLoginStatus().then(result => {
-                if (result.isLoggedIn) {
-                  router.push('/dashboard');
-                }
-              });
-            }
-          }, 1000);
+          // 2. 直接跳转到Google授权页面
+          window.location.href = response.data.url;
+        } else {
+          throw new Error('获取Google授权URL失败');
         }
       } catch (error) {
+        console.error('Google注册失败:', error);
         showToast(error.message || t('auth.googleRegisterFailed'), 'error');
       }
     };
@@ -2526,10 +2622,19 @@ export default {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('auth_data', response.data.auth_data);
             
-            setTimeout(() => {
-              // Telegram注册成功后跳转到profile页面进行邮箱验证
-              window.location.href = '/#/profile';
-            }, 1000);
+            // 设置登录状态标志，确保checkLoginStatus返回true
+            window.isUserLoggedIn = true;
+            
+            // 重新加载语言文件（登录后需要加载完整的语言文件）
+            try {
+              const { reloadMessages } = await import('@/i18n');
+              await reloadMessages();
+            } catch (error) {
+              console.warn('重新加载语言文件失败:', error);
+            }
+            
+            // Telegram注册成功后立即跳转到profile页面进行邮箱验证
+            window.location.href = '/#/profile';
           } else if (response.status === 'need_email') {
             clearInterval(telegramPollInterval.value);
             showTelegramModal.value = false;

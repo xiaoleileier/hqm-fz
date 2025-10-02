@@ -120,13 +120,8 @@ const loadLocaleMessages = async (isLoggedIn) => {
 
     if (isLoggedIn) {
 
-      try {
-
-        indexModule = await import( './locales/index.js');
-
-      } catch (e) {
-
-      }
+      // 登录后直接加载完整的语言文件，不需要通过index.js
+      // 这样可以确保加载所有翻译键
 
     } else {
 
@@ -371,11 +366,12 @@ export const reloadMessages = async () => {
 
   
 
-  /*for (const locale of supportedLocales) {
+  // 先清除所有语言消息，避免合并冲突
+  for (const locale of supportedLocales) {
 
     i18n.global.setLocaleMessage(locale, {});
 
-  }*/
+  }
 
   
 
@@ -391,7 +387,7 @@ export const reloadMessages = async () => {
 
     if (messages[locale]) {
 
-      i18n.global.mergeLocaleMessage(locale, messages[locale]);
+      i18n.global.setLocaleMessage(locale, messages[locale]);
 
     }
 
@@ -412,6 +408,11 @@ export const reloadMessages = async () => {
     updatePageTitle();
 
   }, 300);
+  
+  // 触发语言变化事件，通知组件重新渲染
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('languageChanged'));
+  }, 100);
 
   
 

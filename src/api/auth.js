@@ -601,6 +601,54 @@ export const getGoogleAuthUrl = async (inviteCode = '', redirectUrl = '') => {
   });
 };
 
+// Google OAuth 回调处理 - 交换授权码获取token
+export const handleGoogleOAuthCallback = async (code, state = '') => {
+  return request({
+    url: '/passport/oauth/callback',
+    method: 'post',
+    data: {
+      type: 'google',
+      code: code,
+      state: state
+    }
+  });
+};
+
+// 检查URL中是否有OAuth授权码
+export const checkOAuthCallback = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+  
+  // 检查是否有OAuth相关的参数
+  const oauthCode = urlParams.get('code') || hashParams.get('code');
+  const oauthState = urlParams.get('state') || hashParams.get('state');
+  const oauthError = urlParams.get('error') || hashParams.get('error');
+  
+  // 如果有OAuth错误参数，说明授权失败
+  if (oauthError) {
+    return {
+      isOAuthCallback: true,
+      hasError: true,
+      error: oauthError,
+      errorDescription: urlParams.get('error_description') || hashParams.get('error_description')
+    };
+  }
+  
+  // 如果有授权码，说明是OAuth回调
+  if (oauthCode && !urlParams.get('invite_code') && !hashParams.get('invite_code')) {
+    return {
+      isOAuthCallback: true,
+      hasError: false,
+      code: oauthCode,
+      state: oauthState
+    };
+  }
+  
+  return {
+    isOAuthCallback: false
+  };
+};
+
 // Telegram OAuth 登录
 export const getTelegramAuthHash = async () => {
   return request({

@@ -580,6 +580,9 @@
         </template>
       </div>
 
+      <!-- 签到卡片 -->
+      <CheckinCard v-if="hasPlan" style="animation-delay: 0.7s"/>
+
       <!-- 官方客户端下载区域 -->
       <div class="dashboard-card download-card" :class="{'card-animate': !loading.userInfo}"
            v-if="clientConfig.showDownloadCard" style="animation-delay: 0.9s">
@@ -752,6 +755,7 @@ import {
   IconCalendarPlus
 } from '@tabler/icons-vue';
 import CommonDialog from '@/components/popup/CommonDialog.vue';
+import CheckinCard from '@/components/CheckinCard.vue';
 import {getNotices, getSubscribe, getUserConfig, getUserInfo, getUserStats, setNextPeriod} from '@/api/dashboard';
 import {useToast} from '@/composables/useToast';
 import {submitOrder} from '@/api/shop';
@@ -864,7 +868,8 @@ export default {
     IconAlertTriangle,
     IconX,
     IconCalendarPlus,
-    CommonDialog
+    CommonDialog,
+    CheckinCard
   },
   setup() {
     const {t, locale} = useI18n();
@@ -1696,26 +1701,6 @@ export default {
           // 显示提示信息
           showToast('正在尝试打开客户端...', 'info', 2000);
           
-          // 创建一个隐藏的链接来测试应用是否安装
-          const testLink = document.createElement('a');
-          testLink.href = url;
-          testLink.style.display = 'none';
-          document.body.appendChild(testLink);
-          
-          // 尝试打开应用
-          const startTime = Date.now();
-          let appOpened = false;
-          
-          // 监听页面可见性变化，如果应用打开成功，页面会失去焦点
-          const handleVisibilityChange = () => {
-            if (document.hidden) {
-              appOpened = true;
-              document.removeEventListener('visibilitychange', handleVisibilityChange);
-            }
-          };
-          
-          document.addEventListener('visibilitychange', handleVisibilityChange);
-          
           // 尝试打开应用
           try {
             if (shouldUseCurrentWindow) {
@@ -1723,29 +1708,34 @@ export default {
             } else {
               window.open(url, '_blank');
             }
-          } catch (e) {
-            console.error('打开应用失败:', e);
-          }
-          
-          // 3秒后检查是否成功打开应用
-          setTimeout(() => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            document.body.removeChild(testLink);
             
-            if (!appOpened) {
-              // 如果应用没有打开，提供备用方案
-              showToast('无法自动打开客户端，请手动复制订阅链接', 'warning', 5000);
+            // 直接显示成功提示，不再进行复杂的检测
+            setTimeout(() => {
+              showToast('客户端已打开，请完成导入。如果未打开，请手动复制订阅链接', 'success', 5000);
               
-              // 自动复制到剪贴板作为备用方案
+              // 同时复制到剪贴板作为备用
               navigator.clipboard.writeText(subscribeUrl)
                 .then(() => {
-                  showToast('订阅链接已复制到剪贴板，请手动粘贴到客户端', 'success', 5000);
+                  console.log('订阅链接已复制到剪贴板');
                 })
                 .catch(() => {
-                  showToast('请手动复制订阅链接: ' + subscribeUrl, 'error', 8000);
+                  console.log('复制失败');
                 });
-            }
-          }, 3000);
+            }, 1000);
+            
+          } catch (e) {
+            console.error('打开应用失败:', e);
+            showToast('导入失败，请尝试手动复制订阅链接', 'error', 5000);
+            
+            // 提供备用方案
+            navigator.clipboard.writeText(subscribeUrl)
+              .then(() => {
+                showToast('订阅链接已复制到剪贴板', 'success', 3000);
+              })
+              .catch(() => {
+                showToast('请手动复制订阅链接: ' + subscribeUrl, 'error', 8000);
+              });
+          }
         }
       } catch (error) {
         console.error('导入客户端失败:', error);

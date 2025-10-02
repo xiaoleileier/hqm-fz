@@ -26,11 +26,11 @@
 
             </div>
 
-            <span class="nav-text">{{ $t(`menu.${item.i18nKey}`) }}</span>
+            <span class="nav-text">{{ t(`menu.${item.i18nKey}`) }}</span>
 
-            <span v-if="item.name === 'Invite' && showInviteBadge" class="badge-dot">{{ $t('menu.commission') }}</span>
+            <span v-if="item.name === 'Invite' && showInviteBadge" class="badge-dot">{{ t('menu.commission') }}</span>
 
-            <span v-if="item.name === 'Shop' && showShopBadge" class="badge-dot">{{ $t('menu.hotSale') }}</span>
+            <span v-if="item.name === 'Shop' && showShopBadge" class="badge-dot">{{ t('menu.hotSale') }}</span>
 
           </router-link>
 
@@ -57,6 +57,8 @@
 import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed, reactive, onUnmounted } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
+
+import { useI18n } from 'vue-i18n';
 
 import { INVITE_CONFIG, SHOP_CONFIG, NAVIGATION_CONFIG } from '@/utils/baseConfig';
 
@@ -95,6 +97,8 @@ export default {
     const route = useRoute();
 
     const router = useRouter();
+    
+    const { t } = useI18n();
 
     const tabsNav = ref(null);
 
@@ -824,7 +828,9 @@ export default {
 
       showShopBadge,
 
-      isTicketPage
+      isTicketPage,
+      
+      t
 
     };
 

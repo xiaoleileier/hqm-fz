@@ -201,4 +201,36 @@ export function changeEmail(data) {
 
   });
 
-} 
+}
+
+// 签到相关API
+
+export function checkin(data) {
+
+  return request({
+
+    url: '/user/checkin',
+
+    method: 'post',
+
+    data
+
+  });
+
+}
+
+// 普通签到
+
+export function standardCheckin() {
+
+  return checkin({ type: 1 });
+
+}
+
+// 运气签到
+
+export function luckyCheckin(input) {
+
+  return checkin({ type: 2, input });
+
+}
