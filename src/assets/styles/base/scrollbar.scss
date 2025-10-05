@@ -28,10 +28,17 @@
   background-color: transparent;
 }
 
-/* Firefox 滚动条样式 */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--theme-color) var(--input-bg-color, rgba(0, 0, 0, 0.05));
+/* Firefox 滚动条样式 - 使用特性查询确保兼容性 */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+  }
+}
+
+@supports (scrollbar-color: var(--theme-color) var(--input-bg-color, rgba(0, 0, 0, 0.05))) {
+  * {
+    scrollbar-color: var(--theme-color) var(--input-bg-color, rgba(0, 0, 0, 0.05));
+  }
 }
 
 /* 确保滚动效果平滑 */
@@ -58,7 +65,10 @@ html {
     background: linear-gradient(45deg, var(--theme-color), #a747fe);
   }
   
-  * {
-    scrollbar-color: var(--theme-color) rgba(0, 0, 0, 0.05);
+  /* Firefox 多彩滚动条 - 使用特性查询确保兼容性 */
+  @supports (scrollbar-color: var(--theme-color) rgba(0, 0, 0, 0.05)) {
+    * {
+      scrollbar-color: var(--theme-color) rgba(0, 0, 0, 0.05);
+    }
   }
 } 

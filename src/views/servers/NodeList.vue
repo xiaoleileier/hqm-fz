@@ -78,23 +78,47 @@
 
             <div class="node-info">
 
-              <!-- 标签区域 -->
+              <!-- 节点名称 -->
+
+              <h3 class="node-name">{{ node.name }}</h3>
+
+              
+
+              <!-- 倍率和协议信息 -->
+
+              <div class="node-specs">
+
+                <!-- 倍率 -->
+
+                <span class="spec-item rate-spec" v-if="showNodeRate">
+
+                  ⚡ {{ node.rate }}倍率
+
+                </span>
+
+                
+
+                <!-- 协议类型 -->
+
+                <span class="spec-item protocol-spec">
+
+                  {{ node.type }}
+
+                </span>
+
+              </div>
+
+              
+
+              <!-- 节点主机信息 -->
+
+              <p class="node-host" v-if="showNodeDetails">{{ node.host }}:{{ node.port }}</p>
+
+              
+
+              <!-- 节点标签区域 -->
 
               <div class="node-tags">
-
-                <!-- 倍率标签 -->
-
-                <span class="node-tag rate-tag" v-if="showNodeRate">x{{ node.rate }}</span>
-
-                
-
-                <!-- 节点类型标签 -->
-
-                <span class="node-tag type-tag">{{ node.type }}</span>
-
-                
-
-                <!-- 其他标签 -->
 
                 <template v-if="node.tags && node.tags.length > 0">
 
@@ -106,19 +130,15 @@
 
                 </template>
 
+                <!-- 预留位置占位符 -->
+
+                <div class="tags-placeholder" v-else>
+
+                  <!-- 空标签占位 -->
+
+                </div>
+
               </div>
-
-              
-
-              <!-- 节点名称 -->
-
-              <h3 class="node-name">{{ node.name }}</h3>
-
-              
-
-              <!-- 节点主机信息 -->
-
-              <p class="node-host" v-if="showNodeDetails">{{ node.host }}:{{ node.port }}</p>
 
             </div>
 
@@ -581,6 +601,172 @@ onMounted(() => {
 
     
 
+    .node-specs {
+
+      display: flex;
+
+      gap: 1rem;
+
+      margin: 0.5rem 0;
+
+      align-items: center;
+
+      
+
+      .spec-item {
+
+        font-size: 0.875rem;
+
+        font-weight: 600;
+
+        padding: 0.25rem 0.75rem;
+
+        border-radius: 8px;
+
+        transition: all 0.2s ease;
+
+        
+
+        &.rate-spec {
+
+          background-color: #e8f5e8;
+
+          color: #2e7d32;
+
+          border: 1px solid #c8e6c9;
+
+          
+
+          &:hover {
+
+            background-color: #2e7d32;
+
+            color: #ffffff;
+
+          }
+
+          
+
+          /* 黑夜模式适配 */
+
+          @media (prefers-color-scheme: dark) {
+
+            background-color: #1b5e20;
+
+            color: #a5d6a7;
+
+            border-color: #2e7d32;
+
+            
+
+            &:hover {
+
+              background-color: #4caf50;
+
+              color: #ffffff;
+
+            }
+
+          }
+
+          
+
+          .dark-theme & {
+
+            background-color: #1b5e20;
+
+            color: #a5d6a7;
+
+            border-color: #2e7d32;
+
+            
+
+            &:hover {
+
+              background-color: #4caf50;
+
+              color: #ffffff;
+
+            }
+
+          }
+
+        }
+
+        
+
+        &.protocol-spec {
+
+          background-color: #e3f2fd;
+
+          color: #1565c0;
+
+          border: 1px solid #bbdefb;
+
+          
+
+          &:hover {
+
+            background-color: #1565c0;
+
+            color: #ffffff;
+
+          }
+
+          
+
+          /* 黑夜模式适配 */
+
+          @media (prefers-color-scheme: dark) {
+
+            background-color: #0d47a1;
+
+            color: #90caf9;
+
+            border-color: #1565c0;
+
+            
+
+            &:hover {
+
+              background-color: #1976d2;
+
+              color: #ffffff;
+
+            }
+
+          }
+
+          
+
+          .dark-theme & {
+
+            background-color: #0d47a1;
+
+            color: #90caf9;
+
+            border-color: #1565c0;
+
+            
+
+            &:hover {
+
+              background-color: #1976d2;
+
+              color: #ffffff;
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    
+
     .node-tags {
 
       display: flex;
@@ -589,7 +775,13 @@ onMounted(() => {
 
       gap: 0.5rem;
 
-      margin-bottom: 0.5rem;
+      margin-top: 0.75rem;
+
+      width: 100%;
+
+      min-height: 2.5rem;
+
+      align-items: flex-start;
 
       
 
@@ -597,23 +789,57 @@ onMounted(() => {
 
         font-size: 0.75rem;
 
-        padding: 0.2rem 0.5rem;
+        padding: 0.25rem 0.6rem;
 
-        border-radius: 4px;
+        border-radius: 6px;
 
-        background-color: rgba(var(--theme-color-rgb), 0.1);
+        background-color: var(--card-bg-secondary);
 
-        color: var(--theme-color);
+        color: var(--text-secondary);
+
+        font-weight: 500;
+
+        transition: all 0.2s ease;
+
+        border: 1px solid var(--border-color);
+
+        flex-shrink: 0;
+
+        white-space: nowrap;
+
+        
+
+        &:hover {
+
+          background-color: var(--theme-color);
+
+          color: #ffffff;
+
+          transform: translateY(-1px);
+
+        }
 
         
 
         &.rate-tag {
 
-          background-color: rgba(76, 175, 80, 0.1);
+          background-color: #e8f5e8;
 
-          color: #4caf50;
+          color: #2e7d32;
+
+          border-color: #c8e6c9;
 
           font-weight: 600;
+
+          
+
+          &:hover {
+
+            background-color: #2e7d32;
+
+            color: #ffffff;
+
+          }
 
         }
 
@@ -621,11 +847,75 @@ onMounted(() => {
 
         &.type-tag {
 
-          background-color: rgba(33, 150, 243, 0.1);
+          background-color: #e3f2fd;
 
-          color: #2196f3;
+          color: #1565c0;
+
+          border-color: #bbdefb;
+
+          
+
+          &:hover {
+
+            background-color: #1565c0;
+
+            color: #ffffff;
+
+          }
 
         }
+
+      }
+
+      
+
+
+      
+
+
+      
+
+      @keyframes pulse {
+
+        0%, 100% {
+
+          transform: scale(1);
+
+        }
+
+        50% {
+
+          transform: scale(1.1);
+
+        }
+
+      }
+
+      
+
+      @keyframes glow {
+
+        from {
+
+          box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+
+        }
+
+        to {
+
+          box-shadow: 0 4px 12px rgba(255, 107, 107, 0.6);
+
+        }
+
+      }
+
+        
+
+      &.type-tag {
+
+        background-color: rgba(33, 150, 243, 0.1);
+
+        color: #2196f3;
 
       }
 
@@ -894,5 +1184,13 @@ onMounted(() => {
   }
 
 }
+
+/* 标签占位符样式 */
+.tags-placeholder {
+  width: 100%;
+  height: 1.5rem;
+  /* 透明占位，保持布局 */
+}
+
 
 </style> 

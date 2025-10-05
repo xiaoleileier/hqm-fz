@@ -3917,6 +3917,7 @@ export default {
     justify-content: center;
     color: var(--secondary-text-color);
     font-size: 12px;
+    -webkit-user-select: none;
     user-select: none;
   }
   

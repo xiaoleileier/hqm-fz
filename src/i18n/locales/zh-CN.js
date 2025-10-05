@@ -138,6 +138,7 @@ export default {
         // OAuth 登录相关
         orLoginWith: '或使用以下方式登录',
         orRegisterWith: '或使用以下方式注册',
+        thirdPartyLogin: '第三方登录',
         loginWithGoogle: '使用 Google 登录',
         loginWithTelegram: '使用 Telegram 登录',
         registerWithGoogle: '使用 Google 注册',
@@ -624,8 +625,15 @@ export default {
                 deposit: '充值'
             },
             discount: {
-                relative: '相对折扣大约',
-                savings: '为您节省'
+                relative: '最高优惠',
+                savings: '比月付节省'
+            },
+            specs: {
+                traffic: '每月可用流量',
+                devices: '设备数量',
+                speed: '限速',
+                unlimited: '无限制',
+                devices_unit: '台'
             }
         },
         stats: {

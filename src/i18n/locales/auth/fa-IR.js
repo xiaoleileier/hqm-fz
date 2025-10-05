@@ -65,7 +65,10 @@ export default {
     captcha: 'تایید انسان',
     captchaRequired: 'تایید انسان را انجام دهید',
     verifyTokenSuccess: 'تایید توکن موفق',
-    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید'
+    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید',
+    thirdPartyLogin: 'ورود از طریق سرویس‌های شخص ثالث',
+    loginWithGoogle: 'ورود با Google',
+    loginWithTelegram: 'ورود با Telegram'
   },
   validation: {
     required: '{field} نمی تواند خالی باشد',

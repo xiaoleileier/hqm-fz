@@ -65,7 +65,10 @@ export default {
     captcha: '人機驗證',
     captchaRequired: '請完成人機驗證',
     verifyTokenSuccess: '令牌驗證成功',
-    verifyTokenFailed: '令牌驗證失敗，請重試'
+    verifyTokenFailed: '令牌驗證失敗，請重試',
+    thirdPartyLogin: '第三方登入',
+    loginWithGoogle: '使用 Google 登入',
+    loginWithTelegram: '使用 Telegram 登入'
   },
   validation: {
     required: '{field}不能為空',

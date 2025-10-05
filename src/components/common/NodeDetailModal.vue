@@ -44,7 +44,13 @@
 
                 <span class="info-label">{{ $t('nodes.rate') }}:</span>
 
-                <span class="info-value" :class="{ 'high-rate': parseFloat(node.rate) != 1 }">x{{ node.rate }}</span>
+                <div class="rate-display" :class="{ 'high-rate': parseFloat(node.rate) > 1, 'low-rate': parseFloat(node.rate) < 1 }">
+
+                  <span class="rate-icon">⚡</span>
+
+                  <span class="rate-value">{{ node.rate }}倍率</span>
+
+                </div>
 
               </div>
 
@@ -983,6 +989,174 @@ watchEffect(() => {
       &.high-rate {
 
         color: #ff6b6b;
+
+      }
+
+    }
+
+    
+
+    .rate-display {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 0.4rem;
+
+      padding: 0.5rem 1rem;
+
+      border-radius: 16px;
+
+      font-weight: 600;
+
+      background: rgba(0, 0, 0, 0.05);
+
+      backdrop-filter: blur(10px);
+
+      -webkit-backdrop-filter: blur(10px);
+
+      border: 1px solid rgba(0, 0, 0, 0.1);
+
+      color: var(--text-color);
+
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      position: relative;
+
+      overflow: hidden;
+
+      
+
+      &::before {
+
+        content: '';
+
+        position: absolute;
+
+        top: 0;
+
+        left: 0;
+
+        right: 0;
+
+        bottom: 0;
+
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.03) 100%);
+
+        border-radius: 16px;
+
+        z-index: -1;
+
+      }
+
+      
+
+      &:hover {
+
+        transform: translateY(-2px);
+
+        border-color: rgba(0, 0, 0, 0.15);
+
+      }
+
+      
+
+      .rate-icon {
+
+        font-size: 0.9rem;
+
+      }
+
+      
+
+      .rate-value {
+
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+        letter-spacing: 0.3px;
+
+        font-size: 0.9rem;
+
+        font-weight: 700;
+
+      }
+
+      
+
+      &.high-rate {
+
+        background: rgba(255, 107, 107, 0.15);
+
+        border-color: rgba(255, 107, 107, 0.3);
+
+        color: #ff4757;
+
+        animation: subtle-glow 3s ease-in-out infinite alternate;
+
+        
+
+        &::before {
+
+          background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 107, 107, 0.1) 100%);
+
+        }
+
+      }
+
+      
+
+      &.low-rate {
+
+        background: rgba(46, 204, 113, 0.15);
+
+        border-color: rgba(46, 204, 113, 0.3);
+
+        color: #2ecc71;
+
+        
+
+        &::before {
+
+          background: linear-gradient(135deg, rgba(46, 204, 113, 0.2) 0%, rgba(46, 204, 113, 0.1) 100%);
+
+        }
+
+      }
+
+    }
+
+    
+
+    @keyframes pulse {
+
+      0%, 100% {
+
+        transform: scale(1);
+
+      }
+
+      50% {
+
+        transform: scale(1.1);
+
+      }
+
+    }
+
+    
+
+    @keyframes glow {
+
+      from {
+
+        box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+
+      }
+
+      to {
+
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.6);
 
       }
 

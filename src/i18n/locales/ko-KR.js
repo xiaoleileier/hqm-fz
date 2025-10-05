@@ -1,4 +1,5 @@
 ﻿
+// 语言文件更新时间: 2024-01-20 强制刷新
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -134,7 +135,10 @@ export default {
     captchaError: '인증 오류, 다시 시도하세요',
     captchaLoading: '인증 컴포넌트 로딩 중...',
     verifyTokenSuccess: '토큰 인증 성공',
-    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요'
+    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요',
+    thirdPartyLogin: '제3자 로그인',
+    loginWithGoogle: 'Google로 로그인',
+    loginWithTelegram: 'Telegram으로 로그인'
   },
   validation: {
     required: '{field}은(는) 필수 입력 항목입니다',
@@ -522,8 +526,15 @@ export default {
         deposit: '충전'
       },
       discount: {
-        relative: '상대 할인 약',
-        savings: '절약해 줍니다'
+        relative: '최대 할인',
+        savings: '월간 대비 절약'
+      },
+      specs: {
+        traffic: '월간 트래픽',
+        devices: '디바이스 수',
+        speed: '속도 제한',
+        unlimited: '무제한',
+        devices_unit: '대'
       }
     },
     stats: {

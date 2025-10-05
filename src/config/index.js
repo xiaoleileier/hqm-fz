@@ -29,7 +29,7 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'http://ap.haoqimaoer.top/api/v1'
+            'https://ap.haoqimaoer.top/api/v1'
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -181,10 +181,10 @@ export const config  = {
         autoSelectMaxPeriod: false, // 默认关闭
 
         // 是否隐藏周期选择标签 (true=隐藏, false=显示)
-        hidePeriodTabs: false, // 默认显示周期选择标签
+        hidePeriodTabs: true, // 默认显示周期选择标签
 
         // 库存紧张的阈值（当库存数量小于等于此值且大于0时显示库存紧张）
-        lowStockThreshold: 5,
+        lowStockThreshold: 10,
 
         // 是否启用周期折扣计算显示 (true=启用, false=禁用)
         enableDiscountCalculation: true, // 默认启用
@@ -289,7 +289,7 @@ export const config  = {
         `,
 
             // 冷却时间（小时），在此时间内不会再次显示弹窗
-            cooldownHours: 0,
+            cooldownHours: 1,
 
             // 等待时间（秒），用户需要等待多少秒才能关闭弹窗，设为0表示无需等待
             closeWaitSeconds: 0
@@ -710,7 +710,7 @@ export const config  = {
             // 移动版图标距离右下角的距离
             mobile: {
                 right: '20px',
-                bottom: '100px'
+                bottom: '20px'
             }
         }
     },
@@ -732,7 +732,7 @@ export const config  = {
     // More页面自定义卡片配置
     MORE_PAGE_CONFIG: {
         // 是否启用自定义卡片功能
-        enableCustomCards: false,
+        enableCustomCards: true,
 
         // 自定义卡片列表
         // 说明:
@@ -745,20 +745,20 @@ export const config  = {
         // 4. 您可以从https://tabler.io/icons 获取图标的SVG代码
         customCards: [
             // 自定义卡片示例
-            {
-                id: 'github',                  // 卡片唯一ID
-                title: 'GitHub',               // 卡片标题
-                description: '访问我们的GitHub', // 卡片描述
-                svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>',
-                url: 'https://github.com',     // 点击卡片跳转的URL
-                openInNewTab: true             // 是否在新标签页打开
-            },
+            // {
+            //     id: 'github',                  // 卡片唯一ID
+            //     title: 'GitHub',               // 卡片标题
+            //     description: '访问我们的GitHub', // 卡片描述
+            //     svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>',
+            //     url: 'https://github.com',     // 点击卡片跳转的URL
+            //     openInNewTab: true             // 是否在新标签页打开
+            // },
             {
                 id: 'telegram',
                 title: 'Telegram',
                 description: '加入我们的Telegram频道',
                 svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-telegram" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" /></svg>',
-                url: 'https://t.me/your_group',
+                url: 'https://t.me/haoqimaoer',
                 openInNewTab: true
             }
             // 可以继续添加更多卡片...

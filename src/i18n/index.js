@@ -157,6 +157,7 @@ const loadLocaleMessages = async (isLoggedIn) => {
 
       if (!messages[locale]) {
 
+
         try {
 
           let module = null;
@@ -238,8 +239,6 @@ const loadLocaleMessages = async (isLoggedIn) => {
   } catch (e) {
 
   }
-
-  
 
   return injectSiteName(messages);
 
@@ -342,7 +341,31 @@ export const updatePageTitle = () => {
 
       const translatedTitle = i18n.global.t(titleKey);
 
-      document.title = `${translatedTitle} - ${SITE_CONFIG.siteName}`;
+      // 检查翻译是否成功（不是key本身）
+
+      if (translatedTitle && translatedTitle !== titleKey) {
+
+        document.title = `${translatedTitle} - ${SITE_CONFIG.siteName}`;
+
+      } else {
+
+        // 翻译未加载完成，延迟重试
+
+        setTimeout(() => {
+
+          const retryTitle = i18n.global.t(titleKey);
+
+          if (retryTitle && retryTitle !== titleKey) {
+
+            document.title = `${retryTitle} - ${SITE_CONFIG.siteName}`;
+
+          }
+
+        }, 100);
+
+        document.title = SITE_CONFIG.siteName;
+
+      }
 
     } catch (error) {
 

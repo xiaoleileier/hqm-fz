@@ -65,7 +65,10 @@ export default {
     captcha: 'CAPTCHA-проверка',
     captchaRequired: 'Пройдите CAPTCHA-проверку',
     verifyTokenSuccess: 'Проверка токена успешна',
-    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова'
+    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова',
+    thirdPartyLogin: 'Вход через сторонние сервисы',
+    loginWithGoogle: 'Войти через Google',
+    loginWithTelegram: 'Войти через Telegram'
   },
   validation: {
     required: '{field} не может быть пустым',

@@ -195,7 +195,7 @@
       <div class="auth-footer">
 
         <div class="auth-divider">
-          <span class="auth-divider-text">{{ $t('auth.thirdPartyLogin') }}</span>
+          <span class="auth-divider-text">{{ t('auth.thirdPartyLogin') }}</span>
         </div>
 
         <ThirdPartyLogin :config="configInfo" />
@@ -410,7 +410,10 @@ export default {
       if (event.data && event.data.type === 'oauth_login_success') {
         console.log('收到OAuth登录成功消息:', event.data);
         const { token, is_admin, auth_data, login_type } = event.data.data;
+        console.log('解析的数据:', { token, is_admin, auth_data, login_type });
+        
         if (token) {
+          console.log('保存登录信息到localStorage');
           localStorage.setItem('token', token)
           localStorage.setItem('is_admin', is_admin)
           localStorage.setItem('auth_data', auth_data)
@@ -419,8 +422,14 @@ export default {
           if (login_type === 'telegram') {
             localStorage.setItem('oauth_redirect_to_profile', 'true');
           }
+          
+          console.log('准备刷新页面');
           window.location.reload();
+        } else {
+          console.error('token 为空，无法完成登录');
         }
+      } else {
+        console.log('不是OAuth登录成功消息:', event.data);
       }
     };
 
@@ -430,6 +439,7 @@ export default {
 
       // 或者站点配置
       getConfig();
+
 
       const hasToken = hasVerifyToken();
 
@@ -655,6 +665,8 @@ export default {
       configInfo,
 
       handleMessage,
+
+      t,
     };
 
   }
@@ -841,6 +853,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
 
@@ -1367,6 +1380,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
   }

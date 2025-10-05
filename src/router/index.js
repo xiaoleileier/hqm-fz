@@ -709,7 +709,31 @@ router.beforeEach(async (to, from, next) => {
 
         const title = i18n.global.t(to.meta.titleKey);
 
-        return `${title} - ${SITE_CONFIG.siteName}`;
+        // 检查翻译是否成功（不是key本身）
+
+        if (title && title !== to.meta.titleKey) {
+
+          return `${title} - ${SITE_CONFIG.siteName}`;
+
+        } else {
+
+          // 翻译未加载完成，延迟设置标题
+
+          setTimeout(() => {
+
+            const retryTitle = i18n.global.t(to.meta.titleKey);
+
+            if (retryTitle && retryTitle !== to.meta.titleKey) {
+
+              document.title = `${retryTitle} - ${SITE_CONFIG.siteName}`;
+
+            }
+
+          }, 100);
+
+          return SITE_CONFIG.siteName;
+
+        }
 
       } catch (error) {
 

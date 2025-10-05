@@ -1,4 +1,5 @@
 ﻿
+// 语言文件更新时间: 2024-01-20 强制刷新
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -134,7 +135,10 @@ export default {
     captchaError: '認証エラー。もう一度お試しください',
     captchaLoading: '認証コンポーネント読み込み中...',
     verifyTokenSuccess: 'トークン認証成功',
-    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください'
+    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください',
+    thirdPartyLogin: 'サードパーティログイン',
+    loginWithGoogle: 'Googleでログイン',
+    loginWithTelegram: 'Telegramでログイン'
   },
   validation: {
     required: '{field}は必須です',
@@ -521,8 +525,15 @@ export default {
         deposit: 'チャージ'
       },
       discount: {
-        relative: '相対割引約',
-        savings: '節約できます'
+        relative: '最大割引',
+        savings: '月払いより節約'
+      },
+      specs: {
+        traffic: '月間トラフィック',
+        devices: 'デバイス数',
+        speed: '速度制限',
+        unlimited: '無制限',
+        devices_unit: '台'
       }
     },
     stats: {

@@ -1,4 +1,5 @@
 ﻿
+// 语言文件更新时间: 2024-01-20 强制刷新
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -134,7 +135,10 @@ export default {
     captchaError: '驗證錯誤，請重試',
     captchaLoading: '正在載入驗證元件...',
     verifyTokenSuccess: '令牌驗證成功',
-    verifyTokenFailed: '令牌驗證失敗，請重試'
+    verifyTokenFailed: '令牌驗證失敗，請重試',
+    thirdPartyLogin: '第三方登入',
+    loginWithGoogle: '使用 Google 登入',
+    loginWithTelegram: '使用 Telegram 登入'
   },
   validation: {
     required: '{field}不能為空',
@@ -520,8 +524,15 @@ export default {
         deposit: '充值'
       },
       discount: {
-        relative: '相對折扣大約',
-        savings: '為您節省'
+        relative: '最高優惠',
+        savings: '比月付節省'
+      },
+      specs: {
+        traffic: '每月可用流量',
+        devices: '設備數量',
+        speed: '限速',
+        unlimited: '無限制',
+        devices_unit: '台'
       }
     },
     stats: {

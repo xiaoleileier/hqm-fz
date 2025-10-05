@@ -1,3 +1,4 @@
+// 语言文件更新时间: 2024-01-20 强制刷新
 import {SITE_CONFIG} from '../../utils/baseConfig';
 
 export default {
@@ -132,7 +133,10 @@ export default {
         captchaError: 'Lỗi xác thực, vui lòng thử lại',
         captchaLoading: 'Đang tải thành phần xác thực...',
         verifyTokenSuccess: 'Xác thực token thành công',
-        verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại'
+        verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại',
+        thirdPartyLogin: 'Đăng nhập bên thứ ba',
+        loginWithGoogle: 'Đăng nhập bằng Google',
+        loginWithTelegram: 'Đăng nhập bằng Telegram'
     },
     validation: {
         required: '{field} không được để trống',
@@ -519,8 +523,15 @@ export default {
                 deposit: 'Nạp tiền'
             },
             discount: {
-                relative: 'Giảm giá tương đối khoảng',
-                savings: 'Tiết kiệm cho bạn'
+                relative: 'Giảm giá tối đa',
+                savings: 'so với tháng'
+            },
+            specs: {
+                traffic: 'Lưu lượng hàng tháng',
+                devices: 'Số lượng thiết bị',
+                speed: 'Giới hạn tốc độ',
+                unlimited: 'Không giới hạn',
+                devices_unit: 'thiết bị'
             }
         },
         stats: {

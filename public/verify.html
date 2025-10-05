@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
 </head>
 <body>
 <script>
+  console.log('verify.html 加载');
   const query = window.location.search;
+  console.log('URL 查询参数:', query);
+  console.log('准备跳转到:', '/#/verify' + query);
   window.location.href = '/#/verify' + query;
 </script>
 </body>

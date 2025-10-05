@@ -1,4 +1,5 @@
 ﻿
+// 语言文件更新时间: 2024-01-20 强制刷新
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -134,7 +135,10 @@ export default {
     captchaError: 'Ошибка капчи, попробуйте снова',
     captchaLoading: 'Загрузка капчи...',
     verifyTokenSuccess: 'Проверка токена успешна',
-    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова'
+    verifyTokenFailed: 'Ошибка проверки токена, попробуйте снова',
+    thirdPartyLogin: 'Вход через сторонние сервисы',
+    loginWithGoogle: 'Войти через Google',
+    loginWithTelegram: 'Войти через Telegram'
   },
   validation: {
     required: '{field} не может быть пустым',
@@ -521,8 +525,15 @@ export default {
         deposit: 'Пополнение'
       },
       discount: {
-        relative: 'Относительная скидка примерно',
-        savings: 'экономит вам'
+        relative: 'Максимальная скидка',
+        savings: 'по сравнению с месячной'
+      },
+      specs: {
+        traffic: 'Ежемесячный трафик',
+        devices: 'Количество устройств',
+        speed: 'Ограничение скорости',
+        unlimited: 'Без ограничений',
+        devices_unit: 'устройств'
       }
     },
     stats: {

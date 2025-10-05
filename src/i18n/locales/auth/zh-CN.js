@@ -69,6 +69,7 @@ export default {
     // OAuth 登录相关
     orLoginWith: '或使用以下方式登录',
     orRegisterWith: '或使用以下方式注册',
+    thirdPartyLogin: '第三方登录',
     loginWithGoogle: '使用 Google 登录',
     loginWithTelegram: '使用 Telegram 登录',
     registerWithGoogle: '使用 Google 注册',

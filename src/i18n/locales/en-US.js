@@ -139,7 +139,15 @@ export default {
         pleaseWait: 'Please wait, completing login process',
         popupBlocked: 'Popup blocked, please allow popups and try again',
         loginTimeout: 'Login timeout, please try again',
-        googleLoginCancelled: 'Google login cancelled'
+        googleLoginCancelled: 'Google login cancelled',
+        // OAuth 登录相关
+        orLoginWith: 'Or login with',
+        orRegisterWith: 'Or register with',
+        thirdPartyLogin: 'Third Party Login',
+        loginWithGoogle: 'Login with Google',
+        loginWithTelegram: 'Login with Telegram',
+        registerWithGoogle: 'Register with Google',
+        registerWithTelegram: 'Register with Telegram'
     },
     validation: {
         required: '{field} cannot be empty',
@@ -544,8 +552,15 @@ export default {
                 deposit: 'Deposit'
             },
             discount: {
-                relative: 'Relative discount approx',
-                savings: 'saves you'
+                relative: 'Max discount',
+                savings: 'vs monthly'
+            },
+            specs: {
+                traffic: 'Monthly Traffic',
+                devices: 'Device Count',
+                speed: 'Speed Limit',
+                unlimited: 'Unlimited',
+                devices_unit: 'devices'
             }
         },
         stats: {

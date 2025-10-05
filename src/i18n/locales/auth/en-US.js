@@ -65,7 +65,10 @@ export default {
     captcha: 'CAPTCHA Verification',
     captchaRequired: 'Please complete the CAPTCHA verification',
     verifyTokenSuccess: 'Token verification successful',
-    verifyTokenFailed: 'Token verification failed, please try again'
+    verifyTokenFailed: 'Token verification failed, please try again',
+    thirdPartyLogin: 'Third Party Login',
+    loginWithGoogle: 'Login with Google',
+    loginWithTelegram: 'Login with Telegram'
   },
   validation: {
     required: '{field} cannot be empty',

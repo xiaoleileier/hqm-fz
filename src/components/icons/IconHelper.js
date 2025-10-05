@@ -104,6 +104,7 @@
 
   IconClock,
 
+  IconDatabase,
 
   IconTag,
 
@@ -223,6 +224,7 @@ export {
 
   IconClock,
 
+  IconDatabase as IconStorage,
 
   IconTag,
 

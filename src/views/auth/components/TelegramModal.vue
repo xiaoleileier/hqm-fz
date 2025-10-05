@@ -1,5 +1,5 @@
 <script setup lang="js">
-import { IconCopy, IconX } from "@tabler/icons-vue";
+import { IconCopy, IconX, IconBrandTelegram } from "@tabler/icons-vue";
 import {ref, watch} from "vue";
 import { useRouter } from "vue-router";
 import { getTelegramCode, checkTelegram } from "@/api/auth";
@@ -95,6 +95,10 @@ const closeModal = () => {
   showModal.value = false;
 }
 
+const showHelp = () => {
+  showToast('如果遇到问题，请确保：\n1. 已安装 Telegram 应用\n2. 网络连接正常\n3. 命令未过期', 'info');
+}
+
 watch(() => showModal.value, (newVal) => {
   if (!newVal) {
     clearInterval(timer)
@@ -108,513 +112,427 @@ defineExpose({ openModal })
 <template>
   <Teleport to="body">
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
-
       <div class="modal-content" @click.stop>
-
+        <!-- Header -->
         <div class="modal-header">
-
-          <h3>Telegram 登录</h3>
-
+          <div class="header-content">
+            <div class="telegram-icon">
+              <IconBrandTelegram :size="24" />
+            </div>
+            <div class="header-text">
+              <h3>Telegram 登录</h3>
+            </div>
+          </div>
           <button class="close-btn" @click="closeModal">
-
-            <IconX :size="20" />
-
+            <IconX :size="18" />
           </button>
-
         </div>
 
+        <!-- Body -->
         <div class="modal-body">
           <div class="message-loading" v-if="loading">
-
             <LoadingSpinner />
-
-            <p>{{ $t('common.loading') }}</p>
-
+            <p>正在生成登录命令...</p>
           </div>
 
-          <ol v-else>
-            <li>
-              <div>
-                1.复制命令 <span class="expires"> {{expires}}s </span> 后过期
-                <br/>
+          <div v-else class="login-content">
+            <!-- Step 1: Copy Command -->
+            <div class="step-section">
+              <div class="step-header">
+                <span class="step-number">1</span>
+                <span class="step-title">复制登录命令</span>
               </div>
-              <div class="command">
-                <div class="info">
-                  /login {{ code }}
-                </div>
-                <div class="icon">
-                  <IconCopy :size="24" @click="copy"/>
-                </div>
+              <div class="command-container">
+                <div class="command-text">/login {{ code }}</div>
+                <button class="copy-btn" @click="copy" :disabled="expires <= 0">
+                  <IconCopy :size="16" />
+                </button>
               </div>
-            </li>
-            <li class="send">
-              2.发送给
-              <a :href="`https://t.me/${props.config.telegram_bot_name}`" target="_blank">
-                @{{ props.config.telegram_bot_name }}
+              <div class="expires-info">
+                <span class="expires-icon">⏰</span>
+                <span class="expires-text">{{expires}}秒后过期</span>
+              </div>
+            </div>
+
+            <!-- Step 2: Send to Bot -->
+            <div class="step-section">
+              <div class="step-header">
+                <span class="step-number">2</span>
+                <span class="step-title">发送给机器人</span>
+              </div>
+              <a :href="`https://t.me/${props.config?.telegram_bot_name || 'bot'}`" target="_blank" class="bot-link">
+                <div class="bot-info">
+                  <IconBrandTelegram :size="20" />
+                  <span class="bot-name">@{{ props.config?.telegram_bot_name || 'bot' }}</span>
+                  <span class="external-icon">↗</span>
+                </div>
               </a>
-            </li>
-          </ol>
+            </div>
 
+            <!-- Step 3: Wait for Verification -->
+            <div class="step-section">
+              <div class="step-header">
+                <span class="step-number">3</span>
+                <span class="step-title">等待验证</span>
+              </div>
+              <div class="waiting-container">
+                <div class="pulse-dot"></div>
+                <span>正在验证中...</span>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Footer -->
         <div class="modal-footer">
-
           <button class="cancel-btn" @click="closeModal">
-            {{ $t('common.cancel') }}
+            取消
           </button>
-
-          <button class="submit-btn" @click="closeModal">
-            {{ $t('common.submit') }}
+          <button class="help-btn" @click="showHelp">
+            帮助
           </button>
         </div>
-
       </div>
-
     </div>
   </Teleport>
 </template>
 
 <style scoped lang="scss">
 .modal-overlay {
-
   position: fixed;
-
   top: 0;
-
   left: 0;
-
   right: 0;
-
   bottom: 0;
-
   background-color: rgba(0, 0, 0, 0.6);
-
-  backdrop-filter: blur(6px);
-
+  backdrop-filter: blur(4px);
   display: flex;
-
   justify-content: center;
-
   align-items: center;
-
   z-index: 1000;
-
   animation: fadeIn 0.3s ease;
-
-  padding: 0.5rem;
-
+  padding: 1rem;
 }
-
-
 
 .modal-content {
-
-  width: 96%;
-
-  max-width: 500px;
-
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
   background-color: var(--card-background);
-
-  border-radius: 16px;
-
+  border-radius: 12px;
   overflow: hidden;
-
   animation: slideIn 0.3s ease;
-
   border: 1px solid var(--border-color);
-
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-
-
-
-  &.closing {
-
-    animation: slideOut 0.3s ease forwards;
-
-  }
-
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
 }
-
-
 
 .modal-header {
-
-  padding: 1.5rem;
-
+  padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
+  background: var(--bg-color);
+  flex-shrink: 0;
 
-  background-color: var(--bg-color);
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 
+    .telegram-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0088cc 0%, #00a8ff 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
 
-
-  h3 {
-
-    margin: 0;
-
-    font-size: 1.25rem;
-
-    font-weight: 600;
-
-    color: var(--text-color);
-
+    .header-text {
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+    }
   }
-
-
 
   .close-btn {
-
     background: none;
-
     border: none;
-
     color: var(--text-muted);
-
     cursor: pointer;
-
     padding: 0.5rem;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
-    border-radius: 50%;
-
-    transition: all 0.3s ease;
-
-
+    border-radius: 6px;
+    transition: all 0.2s ease;
 
     &:hover {
-
-      background-color: rgba(var(--theme-color-rgb), 0.1);
-
-      color: var(--theme-color);
-
+      background-color: var(--bg-secondary);
+      color: var(--text-color);
     }
-
   }
-
 }
-
-
 
 .modal-body {
-
-  padding: 1rem;
-
+  padding: 1.25rem;
   background-color: var(--bg-color);
-
   color: var(--text-color);
+  flex: 1;
+  overflow-y: auto;
 
-  ol {
-    li{
-      text-align: left;
-      margin: 2rem 0;
+  .login-content {
+    .step-section {
+      margin-bottom: 1.5rem;
 
-      div {
-        display: inline-flex;
-        .expires {
-          color: var(--theme-color);
-          margin: 0 3px;
-        }
+      &:last-child {
+        margin-bottom: 0;
       }
 
-      .command {
+      .step-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
 
-        .info {
-          background-color: var(--bg-color);
-          border: solid 1px var(--shadow-color);
-          padding: 2px 4px;
-          border-radius: 5px;
+        .step-number {
+          width: 24px;
+          height: 24px;
+          background: var(--theme-color);
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 0.85rem;
+          flex-shrink: 0;
         }
 
-        .icon {
-          display: inline-flex;
-          align-items: center;
-          cursor: pointer;
+        .step-title {
+          font-weight: 600;
+          color: var(--text-color);
+          font-size: 0.95rem;
         }
       }
 
-      .send {
+      .command-container {
         display: flex;
-        justify-content: flex-start;
+        align-items: center;
+        background: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+
+        .command-text {
+          flex: 1;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 0.9rem;
+          color: var(--text-color);
+          background: none;
+          border: none;
+          padding: 0;
+        }
+
+        .copy-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          background: var(--theme-color);
+          color: white;
+          border: none;
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover:not(:disabled) {
+            background: rgba(var(--theme-color-rgb), 0.9);
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .expires-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        background: rgba(var(--theme-color-rgb), 0.05);
+        border: 1px solid rgba(var(--theme-color-rgb), 0.15);
+        border-radius: 6px;
+        
+        .expires-icon {
+          font-size: 0.9rem;
+          opacity: 0.8;
+        }
+        
+        .expires-text {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+      }
+
+      .bot-link {
+        text-decoration: none;
+        color: inherit;
+
+        .bot-info {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          background: var(--card-background);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          transition: all 0.2s ease;
+
+          &:hover {
+            border-color: #0088cc;
+            background: rgba(0, 136, 204, 0.05);
+          }
+
+          .bot-name {
+            flex: 1;
+            font-weight: 600;
+            color: #0088cc;
+            font-size: 0.9rem;
+          }
+
+          .external-icon {
+            color: var(--text-muted);
+            font-size: 1rem;
+          }
+        }
+      }
+
+      .waiting-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(var(--theme-color-rgb), 0.05);
+        border: 1px solid rgba(var(--theme-color-rgb), 0.2);
+        border-radius: 8px;
+
+        .pulse-dot {
+          width: 8px;
+          height: 8px;
+          background: var(--theme-color);
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+
+        span {
+          color: var(--text-muted);
+          font-size: 0.85rem;
+        }
       }
     }
   }
-
-
-  p {
-
-    color: var(--text-color);
-
-    font-size: 1rem;
-
-    line-height: 1.6;
-
-    margin-bottom: 1.5rem;
-
-  }
-
 }
-
-
 
 .modal-footer {
-
-  padding: 1.5rem;
-
+  padding: 1rem 1.25rem;
   border-top: 1px solid var(--border-color);
-
   display: flex;
-
-  justify-content: flex-end;
-
-  gap: 1rem;
-
-  background-color: var(--bg-color);
-
-
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-color);
+  flex-shrink: 0;
 
   button {
-
-    padding: 0.85rem 1.75rem;
-
-    border-radius: 10px;
-
-    font-size: 1rem;
-
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
     font-weight: 500;
-
     cursor: pointer;
-
-    transition: all 0.3s ease;
-
-
+    transition: all 0.2s ease;
+    border: none;
 
     &.cancel-btn {
-
-      background-color: var(--card-bg);
-
+      background-color: var(--card-background);
       border: 1px solid var(--border-color);
-
       color: var(--text-color);
 
-
-
       &:hover {
-
         background-color: var(--bg-secondary);
-
-        border-color: var(--text-muted);
-
       }
-
     }
 
-
-
-    &.submit-btn {
-
-      background-color: var(--theme-color);
-
+    &.help-btn {
+      background: #0088cc;
       color: white;
 
-      border: none;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      gap: 0.75rem;
-
-      box-shadow: 0 4px 10px rgba(var(--theme-color-rgb), 0.25);
-
-
-
-      &:hover:not(:disabled) {
-
-        background-color: rgba(var(--theme-color-rgb), 0.9);
-
-        transform: translateY(-2px);
-
-        box-shadow: 0 6px 15px rgba(var(--theme-color-rgb), 0.3);
-
+      &:hover {
+        background: #0077bb;
       }
-
-
-
-      &:active:not(:disabled) {
-
-        transform: translateY(0);
-
-      }
-
-
-
-      &:disabled {
-
-        opacity: 0.7;
-
-        cursor: not-allowed;
-
-      }
-
-
-
-      .loader {
-
-        width: 18px;
-
-        height: 18px;
-
-        border: 2px solid rgba(255, 255, 255, 0.3);
-
-        border-radius: 50%;
-
-        border-top-color: white;
-
-        animation: spin 1s linear infinite;
-
-      }
-
     }
-
   }
-
-}
-
-
-
-@keyframes spin {
-
-  0% { transform: rotate(0deg); }
-
-  100% { transform: rotate(360deg); }
-
-}
-
-
-
-@keyframes fadeIn {
-
-  from {
-
-    opacity: 0;
-
-  }
-
-  to {
-
-    opacity: 1;
-
-  }
-
-}
-
-
-
-@keyframes slideIn {
-
-  from {
-
-    transform: translateY(-30px);
-
-    opacity: 0;
-
-  }
-
-  to {
-
-    transform: translateY(0);
-
-    opacity: 1;
-
-  }
-
-}
-
-
-
-@keyframes slideOut {
-
-  from {
-
-    transform: translateY(0);
-
-    opacity: 1;
-
-  }
-
-  to {
-
-    transform: translateY(30px);
-
-    opacity: 0;
-
-  }
-
 }
 
 .message-loading {
-
   flex: 1;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
-
   color: var(--text-muted);
-
-  height: 100%;
-
-  min-height: 200px;
-
-
-
-  .no-selection-icon,
-
-  .no-messages-icon {
-
-    margin-bottom: 1.2rem;
-
-    opacity: 0.6;
-
-    color: var(--text-muted);
-
-
-
-    @media (prefers-color-scheme: dark) {
-
-      opacity: 0.4;
-
-    }
-
-  }
+  height: 200px;
 
   p {
-
-    font-size: 1rem;
-
+    font-size: 0.9rem;
     text-align: center;
-
-    margin-top: 0.8rem;
-
+    margin-top: 0.75rem;
   }
+}
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>

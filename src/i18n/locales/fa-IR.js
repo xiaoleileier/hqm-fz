@@ -1,4 +1,5 @@
 ﻿
+// 语言文件更新时间: 2024-01-20 强制刷新
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -134,7 +135,10 @@ export default {
     captchaError: 'خطا در تایید، دوباره امتحان کنید',
     captchaLoading: 'در حال بارگذاری تایید...',
     verifyTokenSuccess: 'تایید توکن موفق',
-    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید'
+    verifyTokenFailed: 'تایید توکن شکست خورد، لطفا دوباره امتحان کنید',
+    thirdPartyLogin: 'ورود از طریق سرویس‌های شخص ثالث',
+    loginWithGoogle: 'ورود با Google',
+    loginWithTelegram: 'ورود با Telegram'
   },
   validation: {
     required: '{field} نمی تواند خالی باشد',
@@ -521,8 +525,15 @@ export default {
         deposit: 'شارژ'
       },
       discount: {
-        relative: 'تخفیف نسبی حدود',
-        savings: 'برای شما صرفه جویی می کند'
+        relative: 'حداکثر تخفیف',
+        savings: 'در مقایسه با ماهانه'
+      },
+      specs: {
+        traffic: 'ترافیک ماهانه',
+        devices: 'تعداد دستگاه',
+        speed: 'محدودیت سرعت',
+        unlimited: 'نامحدود',
+        devices_unit: 'دستگاه'
       }
     },
     stats: {

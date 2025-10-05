@@ -295,19 +295,59 @@
 
             <!-- 周期折扣计算 -->
 
-            <div class="discount-calculation" v-if="SHOP_CONFIG.enableDiscountCalculation && calculateDiscount(plan).showDiscount">
+            <div class="discount-calculation" v-if="SHOP_CONFIG.enableDiscountCalculation">
 
-              <div class="discount-info">
+              <div class="discount-info" v-if="calculateDiscount(plan).showDiscount">
 
-                <span class="period-name">{{ calculateDiscount(plan).periodName }}</span>
+                <span class="discount-label">{{ $t('shop.plan.discount.relative') }} </span>
 
-                <span class="discount-label">&nbsp;{{ $t('shop.plan.discount.relative') }} </span>
-
-                <span class="discount-value">&nbsp;{{ calculateDiscount(plan).discountPercentage }}%</span>
+                <span class="discount-value">{{ calculateDiscount(plan).discountPercentage }}%</span>
 
                 <span class="saving-text">，{{ $t('shop.plan.discount.savings') }} </span>
 
-                <span class="saving-amount">&nbsp;{{ currencySymbol }}{{ calculateDiscount(plan).savingsAmount }}</span>
+                <span class="saving-amount">{{ currencySymbol }}{{ calculateDiscount(plan).savingsAmount }}</span>
+
+              </div>
+
+              <!-- 占位符，保持卡片高度一致 -->
+
+              <div class="discount-placeholder" v-else></div>
+
+            </div>
+
+            
+
+            <!-- 套餐规格信息 -->
+
+            <div class="plan-specs" v-if="hasPlanSpecs(plan)">
+
+              <div class="spec-item" v-if="plan.transfer_enable !== undefined && plan.transfer_enable !== null">
+
+                <IconStorage class="spec-icon" />
+
+                <span class="spec-value">{{ formatTraffic(plan.transfer_enable) }}</span>
+
+                <span class="spec-label">{{ $t('shop.plan.specs.traffic') }}</span>
+
+              </div>
+
+              <div class="spec-item" v-if="plan.device_limit !== undefined && plan.device_limit !== null">
+
+                <IconDevices class="spec-icon" />
+
+                <span class="spec-value">{{ formatDeviceLimit(plan.device_limit) }}</span>
+
+                <span class="spec-label">{{ $t('shop.plan.specs.devices') }}</span>
+
+              </div>
+
+              <div class="spec-item" v-if="plan.speed_limit !== undefined && plan.speed_limit !== null">
+
+                <IconBolt class="spec-icon" />
+
+                <span class="spec-value">{{ formatSpeedLimit(plan.speed_limit) }}</span>
+
+                <span class="spec-label">{{ $t('shop.plan.specs.speed') }}</span>
 
               </div>
 
@@ -347,7 +387,7 @@
 
               <!-- HTML格式内容 -->
 
-              <div v-else class="html-content" v-html="plan.content"></div>
+              <div v-else class="html-content" v-html="plan.content" :style="getHtmlContentStyle()"></div>
 
             </div>
 
@@ -355,23 +395,27 @@
 
             <!-- 购买按钮 -->
 
-            <button 
+            <div class="purchase-button-wrapper">
 
-              class="btn-purchase glassmorphism" 
+              <button 
 
-              :class="{ 'btn-disabled': plan.capacity_limit === 0 }"
+                class="btn-purchase glassmorphism" 
 
-              @click="purchasePlan(plan)"
+                :class="{ 'btn-disabled': plan.capacity_limit === 0 }"
 
-              :disabled="plan.capacity_limit === 0"
+                @click="purchasePlan(plan)"
 
-            >
+                :disabled="plan.capacity_limit === 0"
 
-              <IconShoppingCart class="btn-icon" />
+              >
 
-              <span class="btn-text">{{ plan.capacity_limit === 0 ? $t('shop.plan.sold_out_btn') : $t('shop.plan.purchase') }}</span>
+                <IconShoppingCart class="btn-icon" />
 
-            </button>
+                <span class="btn-text">{{ plan.capacity_limit === 0 ? $t('shop.plan.sold_out_btn') : $t('shop.plan.purchase') }}</span>
+
+              </button>
+
+            </div>
 
           </div>
 
@@ -454,6 +498,8 @@ import {
 
 } from '@tabler/icons-vue';
 
+import { IconStorage } from '@/components/icons/IconHelper';
+
 import { useRouter } from 'vue-router';
 
 
@@ -487,6 +533,8 @@ export default {
     IconCircleCheck,
 
     IconChevronDown,
+
+    IconStorage,
 
     ShopPopup,
 
@@ -1220,6 +1268,114 @@ export default {
 
     
 
+    // 检查套餐是否有规格信息
+
+    const hasPlanSpecs = (plan) => {
+
+      return (plan.transfer_enable !== undefined && plan.transfer_enable !== null) ||
+
+             (plan.device_limit !== undefined && plan.device_limit !== null) ||
+
+             (plan.speed_limit !== undefined && plan.speed_limit !== null);
+
+    };
+
+    
+
+    // 格式化流量显示
+
+    const formatTraffic = (gb) => {
+
+      if (gb === null || gb === undefined) return '--';
+
+      if (gb === 0) return t('shop.plan.specs.unlimited');
+
+      
+
+      if (gb >= 9000) {
+
+        return t('shop.plan.specs.unlimited');
+
+      }
+
+      
+
+      if (gb >= 1) {
+
+        return `${gb.toFixed(gb >= 10 ? 0 : 1)} GB`;
+
+      }
+
+      
+
+      // 如果小于1GB，显示为MB
+
+      const mb = gb * 1024;
+
+      return `${mb.toFixed(0)} MB`;
+
+    };
+
+    
+
+    // 格式化设备限制显示
+
+    const formatDeviceLimit = (limit) => {
+
+      if (limit === null || limit === undefined) return '--';
+
+      if (limit === 0) return t('shop.plan.specs.unlimited');
+
+      return `${limit} ${t('shop.plan.specs.devices_unit')}`;
+
+    };
+
+    
+
+    // 格式化速度限制显示
+
+    const formatSpeedLimit = (limit) => {
+
+      if (limit === null || limit === undefined) return '--';
+
+      if (limit === 0) return t('shop.plan.specs.unlimited');
+
+      if (limit >= 1000) {
+
+        return `${(limit / 1000).toFixed(1)} Gbps`;
+
+      }
+
+      return `${limit} Mbps`;
+
+    };
+
+    
+
+    // 获取HTML内容的样式
+
+    const getHtmlContentStyle = () => {
+
+      const isDark = document.body.classList.contains('dark-theme');
+
+      if (isDark) {
+
+        return {
+
+          color: '#ffffff !important',
+
+          '--text-color': '#ffffff !important'
+
+        };
+
+      }
+
+      return {};
+
+    };
+
+    
+
     return {
 
       plans,
@@ -1282,7 +1438,19 @@ export default {
 
       SHOP_CONFIG,
 
-      calculateDiscount
+      calculateDiscount,
+
+      // 新增的规格相关方法
+
+      hasPlanSpecs,
+
+      formatTraffic,
+
+      formatDeviceLimit,
+
+      formatSpeedLimit,
+
+      getHtmlContentStyle
 
     };
 
@@ -1968,6 +2136,20 @@ export default {
 
       }
 
+      
+
+      .purchase-button-wrapper {
+
+        margin-top: auto;
+
+        padding-top: 20px;
+
+        display: flex;
+
+        justify-content: center;
+
+      }
+
     }
 
     
@@ -2148,6 +2330,14 @@ export default {
 
       border-radius: 8px;
 
+      min-height: 32px; /* 确保最小高度一致 */
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
       
 
       .discount-info {
@@ -2215,6 +2405,96 @@ export default {
           font-weight: 700;
 
           color: var(--theme-color);
+
+        }
+
+      }
+
+      
+
+      .discount-placeholder {
+
+        height: 16px; /* 占位符高度，与文字行高一致 */
+
+        width: 100%;
+
+        /* 透明占位符，不显示任何内容 */
+
+      }
+
+    }
+
+    
+
+    .plan-specs {
+
+      margin: 16px 0;
+
+      padding: 12px 16px;
+
+      background: var(--card-bg-secondary);
+
+      border-radius: 8px;
+
+      border: 1px solid var(--border-color);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 16px;
+
+      
+
+      .spec-item {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        text-align: center;
+
+        flex: 1;
+
+        font-size: 13px;
+
+        
+
+        .spec-icon {
+
+          width: 16px;
+
+          height: 16px;
+
+          color: var(--primary-color);
+
+          margin-bottom: 4px;
+
+        }
+
+        
+
+        .spec-value {
+
+          color: var(--text-primary);
+
+          font-weight: 600;
+
+          font-size: 14px;
+
+          margin-bottom: 2px;
+
+        }
+
+        
+
+        .spec-label {
+
+          color: var(--text-secondary);
+
+          font-size: 12px;
 
         }
 
@@ -2306,13 +2586,121 @@ export default {
 
       
 
+      /* 黑夜模式下JSON格式内容的文字颜色 */
+
+      .dark-theme .feature-item span {
+
+        color: #ffffff !important;
+
+        
+
+        &.disabled-text {
+
+          color: #cccccc !important;
+
+        }
+
+      }
+
+      
+
       .html-content {
 
         font-size: 14px;
 
         line-height: 1.6;
 
-        color: var(--text-color);
+        /* 白天模式保持原样，不做任何更改 */
+
+        background: unset !important;
+
+        filter: none !important;
+
+        
+
+        /* 只在黑夜模式下适配颜色 - 使用多种检测方式 */
+
+        @media (prefers-color-scheme: dark) {
+
+          color: #ffffff !important;
+
+          
+
+          * {
+
+            color: #ffffff !important;
+
+          }
+
+        }
+
+        
+
+        /* 通过主题类名检测黑夜模式 - 使用项目实际的主题类名 */
+
+        .dark-theme .html-content {
+
+          color: #ffffff !important;
+
+          
+
+          /* 黑夜模式下重置主题变量 */
+
+          --text-color: #ffffff !important;
+
+          --background-color: unset !important;
+
+          --border-color: #ffffff !important;
+
+          
+
+          /* 确保子元素在黑夜模式下使用白色 - 使用更高优先级 */
+
+          * {
+
+            color: #ffffff !important;
+
+          }
+
+          
+
+          /* 针对特定元素在黑夜模式下使用白色 - 使用更高优先级 */
+
+          p, div, span, a, li, ul, ol, h1, h2, h3, h4, h5, h6 {
+
+            color: #ffffff !important;
+
+          }
+
+        }
+
+        
+
+        /* 使用更高优先级的选择器 */
+
+        .plan-card .dark-theme .html-content,
+
+        .plan-features .dark-theme .html-content {
+
+          color: #ffffff !important;
+
+          
+
+          * {
+
+            color: #ffffff !important;
+
+          }
+
+          
+
+          p, div, span, a, li, ul, ol, h1, h2, h3, h4, h5, h6 {
+
+            color: #ffffff !important;
+
+          }
+
+        }
 
       }
 

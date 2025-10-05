@@ -1,21 +1,22 @@
 <script setup>
   import { useRoute } from "vue-router";
   import { onMounted } from "vue";
+  import { useI18n } from "vue-i18n";
 
   const route = useRoute()
+  const { t } = useI18n()
 
   const getInfo = () => {
     try {
       console.log('验证页面加载，route.query:', route.query)
-      const { token, is_admin, auth_data, type } = route.query
+      const { token, is_admin, auth_data } = route.query
       if(token && auth_data) {
         console.log('收到token和auth_data，准备发送消息给父窗口')
         // 准备数据
         const loginData = {
           token,
           is_admin,
-          auth_data,
-          login_type: type || 'google' // 默认为 google，因为这是通过 verify.html 回调的
+          auth_data
         };
 
         // 通知父窗口登录成功

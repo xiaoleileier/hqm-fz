@@ -148,5 +148,6 @@ input, button, textarea, select {
 
 // 禁止选择文本
 .no-select {
+  -webkit-user-select: none;
   user-select: none;
 } 

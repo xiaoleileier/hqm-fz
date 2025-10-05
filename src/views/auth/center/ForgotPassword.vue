@@ -2527,6 +2527,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
   }

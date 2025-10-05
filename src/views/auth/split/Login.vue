@@ -110,6 +110,12 @@
 
           <div class="auth-footer">
             <div class="auth-divider">
+              <span class="auth-divider-text">{{ t('auth.thirdPartyLogin') }}</span>
+            </div>
+
+            <ThirdPartyLogin :config="configInfo" />
+
+            <div class="auth-divider">
               <span class="auth-divider-text">{{ $t('auth.noAccount') }}</span>
             </div>
 
@@ -150,8 +156,9 @@ import IconLock from '@/components/icons/IconLock.vue';
 import IconArrowRight from '@/components/icons/IconArrowRight.vue';
 import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeOff from '@/components/icons/IconEyeOff.vue';
-import { login, checkLoginStatus } from '@/api/auth';
+import { login, checkLoginStatus, getWebsiteConfig } from '@/api/auth';
 import { validateEmail, validateRequired } from '@/utils/validators';
+import ThirdPartyLogin from '../components/ThirdPartyLogin.vue';
 
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 import { handleTokenLogin, hasVerifyToken } from '@/utils/tokenLogin';
@@ -171,7 +178,8 @@ export default {
     IconEye,
     IconEyeOff,
     DomainAuthAlert,
-    AuthPopup
+    AuthPopup,
+    ThirdPartyLogin
   },
 
   setup() {
@@ -198,6 +206,7 @@ export default {
 
     const loading = ref(false);
     const configLoading = ref(false);
+    const configInfo = ref({});
 
     const showCaptchaModal = ref(false);
     const isClosingModal = ref(false);
@@ -258,6 +267,10 @@ export default {
     // 监听来自验证窗口的消息
     const handleMessage = (event) => {
       console.log('收到消息:', event);
+      console.log('消息来源:', event.origin);
+      console.log('当前来源:', window.location.origin);
+      console.log('消息数据:', event.data);
+      
       // 验证消息来源
       if (event.origin !== window.location.origin) {
         console.log('消息来源不匹配:', event.origin, window.location.origin);
@@ -267,7 +280,10 @@ export default {
       if (event.data && event.data.type === 'oauth_login_success') {
         console.log('收到OAuth登录成功消息:', event.data);
         const { token, is_admin, auth_data, login_type } = event.data.data;
+        console.log('解析的数据:', { token, is_admin, auth_data, login_type });
+        
         if (token) {
+          console.log('保存登录信息到localStorage');
           localStorage.setItem('token', token)
           localStorage.setItem('is_admin', is_admin)
           localStorage.setItem('auth_data', auth_data)
@@ -276,13 +292,27 @@ export default {
           if (login_type === 'telegram') {
             localStorage.setItem('oauth_redirect_to_profile', 'true');
           }
+          
+          console.log('准备刷新页面');
           window.location.reload();
+        } else {
+          console.error('token 为空，无法完成登录');
         }
+      } else {
+        console.log('不是OAuth登录成功消息:', event.data);
       }
     };
 
     onMounted(async () => {
       window.addEventListener('message', handleMessage);
+
+      // 获取网站配置
+      try {
+        const config = await getWebsiteConfig();
+        configInfo.value = config;
+      } catch (error) {
+        console.error('获取网站配置失败:', error);
+      }
 
       const hasToken = hasVerifyToken();
 
@@ -430,6 +460,8 @@ export default {
       authPopupConfig,
       handleAuthPopupClose,
       goTo,
+      configInfo,
+      t
     };
   }
 };
@@ -496,6 +528,7 @@ export default {
     font-weight: 700;
     z-index: 2;
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
 
     &.white {
@@ -691,6 +724,7 @@ export default {
     position: relative;
     padding-left: 30px;
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
 
     input {
@@ -946,6 +980,7 @@ export default {
     border-radius: 12px;
     object-fit: cover;
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
   }
 }

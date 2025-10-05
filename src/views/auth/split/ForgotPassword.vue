@@ -1932,6 +1932,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
 
@@ -2932,6 +2933,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
   }

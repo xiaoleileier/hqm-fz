@@ -474,14 +474,15 @@
 
 
           <div class="auth-footer">
-
             <div class="auth-divider">
-
-              <span class="auth-divider-text">{{ $t('auth.alreadyHaveAccount') }}</span>
-
+              <span class="auth-divider-text">{{ t('auth.thirdPartyLogin') }}</span>
             </div>
 
+            <ThirdPartyLogin :config="configInfo" />
 
+            <div class="auth-divider">
+              <span class="auth-divider-text">{{ $t('auth.alreadyHaveAccount') }}</span>
+            </div>
 
             <router-link to="/login" class="btn btn-secondary btn-block">
 
@@ -610,6 +611,7 @@ import IconEyeOff from '@/components/icons/IconEyeOff.vue';
 import IconChevronDown from '@/components/icons/IconChevronDown.vue';
 
 import { register, checkLoginStatus, getWebsiteConfig, sendEmailVerify } from '@/api/auth';
+import ThirdPartyLogin from '../components/ThirdPartyLogin.vue';
 
 
 
@@ -711,7 +713,9 @@ export default {
 
     DomainAuthAlert,
 
-    AuthPopup
+    AuthPopup,
+
+    ThirdPartyLogin
 
   },
 
@@ -729,6 +733,7 @@ export default {
     const loading = ref(false);
 
     const configLoading = ref(false);
+    const configInfo = ref({});
 
     const codeSent = ref(false);
 
@@ -1622,7 +1627,10 @@ export default {
       if (event.data && event.data.type === 'oauth_login_success') {
         console.log('收到OAuth登录成功消息:', event.data);
         const { token, is_admin, auth_data, login_type } = event.data.data;
+        console.log('解析的数据:', { token, is_admin, auth_data, login_type });
+        
         if (token) {
+          console.log('保存登录信息到localStorage');
           localStorage.setItem('token', token)
           localStorage.setItem('is_admin', is_admin)
           localStorage.setItem('auth_data', auth_data)
@@ -1631,13 +1639,27 @@ export default {
           if (login_type === 'telegram') {
             localStorage.setItem('oauth_redirect_to_profile', 'true');
           }
+          
+          console.log('准备刷新页面');
           window.location.reload();
+        } else {
+          console.error('token 为空，无法完成登录');
         }
+      } else {
+        console.log('不是OAuth登录成功消息:', event.data);
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       window.addEventListener('message', handleMessage);
+
+      // 获取网站配置
+      try {
+        const websiteConfig = await getWebsiteConfig();
+        configInfo.value = websiteConfig;
+      } catch (error) {
+        console.error('获取网站配置失败:', error);
+      }
 
 
 
@@ -2372,6 +2394,10 @@ export default {
 
       goTo,
 
+      configInfo,
+
+      t
+
     };
 
   }
@@ -2506,6 +2532,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
 
@@ -3530,6 +3557,7 @@ export default {
 
     font-size: 0.9rem;
 
+    -webkit-user-select: none;
     user-select: none;
 
 
@@ -4190,6 +4218,7 @@ export default {
 
     cursor: pointer;
 
+    -webkit-user-select: none;
     user-select: none;
 
   }

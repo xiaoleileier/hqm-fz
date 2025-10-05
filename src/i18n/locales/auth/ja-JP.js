@@ -65,7 +65,10 @@ export default {
     captcha: 'CAPTCHA認証',
     captchaRequired: 'CAPTCHA認証を完了してください',
     verifyTokenSuccess: 'トークン認証成功',
-    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください'
+    verifyTokenFailed: 'トークン認証失敗、もう一度お試しください',
+    thirdPartyLogin: 'サードパーティログイン',
+    loginWithGoogle: 'Googleでログイン',
+    loginWithTelegram: 'Telegramでログイン'
   },
   validation: {
     required: '{field}は空にできません',

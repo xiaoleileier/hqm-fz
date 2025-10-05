@@ -63,7 +63,10 @@ export default {
     captcha: 'Xác thực con người',
     captchaRequired: 'Vui lòng hoàn thành xác thực con người',
     verifyTokenSuccess: 'Xác thực token thành công',
-    verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại'
+    verifyTokenFailed: 'Xác thực token thất bại, vui lòng thử lại',
+    thirdPartyLogin: 'Đăng nhập bên thứ ba',
+    loginWithGoogle: 'Đăng nhập bằng Google',
+    loginWithTelegram: 'Đăng nhập bằng Telegram'
   },
   validation: {
     required: '{field} không được để trống',

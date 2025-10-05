@@ -65,7 +65,10 @@ export default {
     captcha: 'CAPTCHA 인증',
     captchaRequired: 'CAPTCHA 인증을 완료하세요',
     verifyTokenSuccess: '토큰 인증 성공',
-    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요'
+    verifyTokenFailed: '토큰 인증 실패, 다시 시도하세요',
+    thirdPartyLogin: '제3자 로그인',
+    loginWithGoogle: 'Google로 로그인',
+    loginWithTelegram: 'Telegram으로 로그인'
   },
   validation: {
     required: '{field}은(는) 비워둘 수 없습니다',
