@@ -104,7 +104,6 @@
 
   IconClock,
 
-  IconTimer,
 
   IconTag,
 
@@ -224,7 +223,6 @@ export {
 
   IconClock,
 
-  IconTimer,
 
   IconTag,
 

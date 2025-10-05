@@ -1811,6 +1811,17 @@ export default {
       fetchUserStats();
 
       updateQRCodeUrl();
+
+      // 检查是否有重定向标记
+      const shouldRedirectToProfile = localStorage.getItem('oauth_redirect_to_profile');
+      if (shouldRedirectToProfile === 'true') {
+        // 清除标记
+        localStorage.removeItem('oauth_redirect_to_profile');
+        // 延迟跳转，确保页面完全加载
+        setTimeout(() => {
+          router.push('/profile');
+        }, 1000);
+      }
     });
 
     watch(() => userPlan.value.subscribeUrl, () => {

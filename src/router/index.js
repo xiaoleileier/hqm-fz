@@ -115,7 +115,7 @@ const NotFound = () => import('@/views/errors/NotFound.vue');
 
 const CustomerService = () => import('@/views/service/CustomerService.vue');
 
-
+const AuthVerify = () => import('@/views/auth/verify/index.vue')
 
 const routes = [
 
@@ -175,6 +175,20 @@ const routes = [
 
     }
 
+  },
+  
+  {
+    path: '/verify',
+    
+    name: 'Verify',
+    
+    component: AuthVerify,
+    
+    meta: {
+      titleKey: 'verify',
+      
+      requiresAuth: false,
+    },
   },
 
   {
@@ -265,25 +279,7 @@ const routes = [
 
       titleKey: 'service.title',
 
-      requiresAuth: false 
-    }
-
-  },
-
-  {
-
-    path: '/oauth-callback',
-
-    name: 'OAuthCallback',
-
-    component: () => import('@/views/auth/OAuthCallback.vue'),
-
-    meta: {
-
-      titleKey: 'auth.processingOAuth',
-
       requiresAuth: false
-
     }
 
   },
@@ -294,9 +290,9 @@ const routes = [
 
     component: MainBoard,
 
-    meta: { 
+    meta: {
 
-      requiresAuth: true 
+      requiresAuth: true
 
     },
 
@@ -356,7 +352,7 @@ const routes = [
 
           requiresAuth: true,
 
-          activeNav: 'Shop' 
+          activeNav: 'Shop'
         }
 
       },
@@ -375,7 +371,7 @@ const routes = [
 
           requiresAuth: true,
 
-          activeNav: 'Shop' 
+          activeNav: 'Shop'
         }
 
       },
@@ -434,7 +430,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('Docs'); } 
+          get activeNav() { return getActiveNavForRoute('Docs'); }
         }
 
       },
@@ -453,7 +449,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('Docs'); } 
+          get activeNav() { return getActiveNavForRoute('Docs'); }
         }
 
       },
@@ -472,7 +468,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('NodeList'); } 
+          get activeNav() { return getActiveNavForRoute('NodeList'); }
         }
 
       },
@@ -491,7 +487,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('OrderList'); } 
+          get activeNav() { return getActiveNavForRoute('OrderList'); }
         }
 
       },
@@ -510,7 +506,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('TicketList'); } 
+          get activeNav() { return getActiveNavForRoute('TicketList'); }
         }
 
       },
@@ -529,7 +525,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('TicketList'); } 
+          get activeNav() { return getActiveNavForRoute('TicketList'); }
         }
 
       },
@@ -548,7 +544,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('Profile'); } 
+          activeNav: 'More'
         }
 
       },
@@ -567,7 +563,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('TrafficLog'); } 
+          get activeNav() { return getActiveNavForRoute('TrafficLog'); }
         },
 
         beforeEnter: (to, from, next) => {
@@ -600,7 +596,7 @@ const routes = [
 
           requiresAuth: true,
 
-          get activeNav() { return getActiveNavForRoute('Deposit'); } 
+          get activeNav() { return getActiveNavForRoute('Deposit'); }
         },
 
         beforeEnter: (to, from, next) => {
@@ -663,136 +659,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-  // 处理OAuth回调参数 - 支持查询参数和hash参数
-  const hasOAuthParams = to.query.token || to.query.auth_data || to.query.is_admin || 
-                        to.query.code || to.query.state || to.query.error;
-  
-  if (hasOAuthParams) {
-    console.log('检测到OAuth回调参数:', to.query);
-    
-    // 如果是OAuth授权码回调，重定向到OAuth回调页面
-    if (to.query.code && !to.query.token) {
-      console.log('检测到OAuth授权码回调，重定向到OAuth回调页面');
-      next({
-        path: '/oauth-callback',
-        query: to.query,
-        replace: true
-      });
-      return;
-    }
-    
-    // 如果是直接的token回调（服务器直接返回token）
-    if (to.query.token || to.query.auth_data || to.query.is_admin) {
-      console.log('检测到OAuth token回调，保存登录信息');
-      
-      // 保存OAuth回调数据
-      if (to.query.token) {
-        localStorage.setItem('token', to.query.token);
-      }
-      if (to.query.auth_data) {
-        localStorage.setItem('auth_data', to.query.auth_data);
-      }
-      if (to.query.is_admin) {
-        localStorage.setItem('is_admin', to.query.is_admin);
-      }
-      
-      // 重新加载语言文件（登录后需要加载完整的语言文件）
-      try {
-        const { reloadMessages } = await import('@/i18n');
-        await reloadMessages();
-        console.log('路由守卫：语言文件重新加载完成');
-      } catch (error) {
-        console.warn('路由守卫：重新加载语言文件失败:', error);
-      }
-      
-      // 通知父窗口登录成功（如果是弹窗）
-      if (window.opener) {
-        window.opener.postMessage({
-          type: 'OAUTH_SUCCESS',
-          token: to.query.token,
-          auth_data: to.query.auth_data,
-          is_admin: to.query.is_admin
-        }, window.location.origin);
-        
-        // 关闭弹窗
-        setTimeout(() => {
-          window.close();
-        }, 1000);
-      }
-      
-      // 清除URL参数并重定向到干净的dashboard
-      next({ 
-        path: '/dashboard', 
-        replace: true 
-      });
-      return;
-    }
-    
-    // 如果是OAuth错误回调
-    if (to.query.error) {
-      next({
-        path: '/oauth-callback',
-        query: to.query,
-        replace: true
-      });
-      return;
-    }
-  }
-  
-  
-  // 特殊处理：如果URL包含OAuth参数但路径是登录页面，重定向到OAuth回调页面
-  if ((to.path === '/login' || to.path === '/register') && hasOAuthParams) {
-    console.log('登录/注册页面检测到OAuth参数，重定向到OAuth回调页面');
-    next({
-      path: '/oauth-callback',
-      query: to.query,
-      replace: true
-    });
-    return;
-  }
-  
-  // 特殊处理：如果URL包含OAuth参数但路径是根路径，重定向到OAuth回调页面
-  if (to.path === '/' && hasOAuthParams) {
-    console.log('根路径检测到OAuth参数，重定向到OAuth回调页面');
-    next({
-      path: '/oauth-callback',
-      query: to.query,
-      replace: true
-    });
-    return;
-  }
-  
-  // 如果已经是OAuth回调页面，直接放行
-  if (to.path === '/oauth-callback') {
-    console.log('访问OAuth回调页面，直接放行');
-    next();
-    return;
-  }
-
-  // 处理URL中的错误参数，避免404问题
-  if (to.query.error) {
-    console.warn('URL中包含错误参数:', to.query.error);
-    
-    // 如果是dashboard页面且有错误参数，直接重定向到干净的dashboard
-    if (to.path === '/dashboard' || to.path === 'dashboard') {
-      next({ 
-        path: '/dashboard', 
-        replace: true 
-      });
-      return;
-    }
-    
-    // 其他页面清除错误参数
-    const cleanQuery = { ...to.query };
-    delete cleanQuery.error;
-    next({ 
-      path: to.path, 
-      query: cleanQuery,
-      replace: true 
-    });
-    return;
-  }
-
   if (to.name !== 'BrowserRestricted' && isBrowserRestricted()) {
 
     next({ name: 'BrowserRestricted' });
@@ -819,7 +685,7 @@ router.beforeEach(async (to, from, next) => {
 
       };
 
-      next({ 
+      next({
 
         name: 'ApiValidation',
 
@@ -867,9 +733,9 @@ router.beforeEach(async (to, from, next) => {
 
   
 
-  const loginStatusChanged = 
+  const loginStatusChanged =
 
-    (from.meta.requiresAuth && !to.meta.requiresAuth) || 
+    (from.meta.requiresAuth && !to.meta.requiresAuth) ||
 
     (!from.meta.requiresAuth && to.meta.requiresAuth);
 
@@ -951,4 +817,4 @@ function getCustomOrDefaultLandingPage() {
 
 
 
-export default router; 
+export default router;

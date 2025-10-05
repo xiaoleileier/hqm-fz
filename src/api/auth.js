@@ -137,7 +137,7 @@ export const handleLoginSuccess = (responseData, rememberMe) => {
       localStorage.setItem('auth_data', responseData.auth_data);
     }
     
-    const days = rememberMe ? 30 : 1; 
+    const days = rememberMe ? 30 : 1;
     if (responseData.auth_data) {
       setCookie('auth_data', responseData.auth_data, days);
     }
@@ -217,7 +217,7 @@ export function register(data) {
     }
     
     if (responseData.auth_data) {
-      setCookie('auth_data', responseData.auth_data, 1); 
+      setCookie('auth_data', responseData.auth_data, 1);
       
       localStorage.setItem('auth_data', responseData.auth_data);
       
@@ -279,7 +279,7 @@ export const logout = async () => {
               });
             }).catch(() => {
               resolve({
-                success: true, 
+                success: true,
                 redirectToLogin: true,
                 redirectUrl: '/login?logout=true'
               });
@@ -315,7 +315,7 @@ export function getWebsiteConfig() {
 export function sendEmailVerify(data) {
   const sendData = { ...data };
   
-  if (window.EZ_CONFIG && window.EZ_CONFIG.PANEL_TYPE === 'Xiao-V2board' && 
+  if (window.EZ_CONFIG && window.EZ_CONFIG.PANEL_TYPE === 'Xiao-V2board' &&
       typeof sendData.isForgetPassword !== 'undefined') {
     sendData.isforget = sendData.isForgetPassword ? 1 : 0;
     delete sendData.isForgetPassword;
@@ -354,13 +354,13 @@ export const checkLoginStatus = () => {
   
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (!token || token === 'undefined' || token === 'null' || token === '') {
-    _clearAllAuthData(); 
+    _clearAllAuthData();
     _cacheLoginStatus(false);
     return false;
   }
   
-  const authData = localStorage.getItem('auth_data') || 
-                  sessionStorage.getItem('auth_data') || 
+  const authData = localStorage.getItem('auth_data') ||
+                  sessionStorage.getItem('auth_data') ||
                   window.authDataInStorage;
                   
   if (!authData || authData === 'undefined' || authData === 'null' || authData === '') {
@@ -419,10 +419,10 @@ const _clearAllAuthData = () => {
   window.authCookieFailure = false;
   
   const authKeys = [
-    'token', 
-    'auth_data', 
-    'cookie_auth_data', 
-    'userInfo', 
+    'token',
+    'auth_data',
+    'cookie_auth_data',
+    'userInfo',
     'is_admin',
     'vuex',
     'user',
@@ -434,7 +434,7 @@ const _clearAllAuthData = () => {
   });
   
   const sessionKeys = [
-    'token', 
+    'token',
     'auth_data',
     'vuex',
     'user',
@@ -473,10 +473,10 @@ export const forceLogout = () => {
   window.authCookieFailure = false;
   
   const authKeys = [
-    'token', 
-    'auth_data', 
-    'cookie_auth_data', 
-    'userInfo', 
+    'token',
+    'auth_data',
+    'cookie_auth_data',
+    'userInfo',
     'is_admin',
     'vuex',
     'user',
@@ -488,7 +488,7 @@ export const forceLogout = () => {
   });
   
   const sessionKeys = [
-    'token', 
+    'token',
     'auth_data',
     'vuex',
     'user',
@@ -526,9 +526,9 @@ export const tokenLogin = (verifyToken, redirect) => {
   return request({
     url: `/passport/auth/token2Login`,
     method: 'get',
-    params: { 
+    params: {
       verify: verifyToken,
-      redirect: redirect || '' 
+      redirect: redirect || ''
     }
   });
 };
@@ -539,7 +539,7 @@ export const checkUserLoginStatus = async () => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   
   if (!token || !authData) {
-    forceLogout(); 
+    forceLogout();
     return { isLoggedIn: false };
   }
   
@@ -588,92 +588,33 @@ export const checkUserLoginStatus = async () => {
   }
 };
 
-// Google OAuth 登录
-export const getGoogleAuthUrl = async (inviteCode = '', redirectUrl = '') => {
+export function oauth(data) {
   return request({
     url: '/passport/oauth/auth',
     method: 'post',
-    data: {
-      type: 'google',
-      code: inviteCode,
-      redirect: redirectUrl
-    }
+    data,
   });
-};
+}
 
-// Google OAuth 回调处理 - 交换授权码获取token
-export const handleGoogleOAuthCallback = async (code, state = '') => {
-  return request({
-    url: '/passport/oauth/callback',
-    method: 'post',
-    data: {
-      type: 'google',
-      code: code,
-      state: state
-    }
-  });
-};
-
-// 检查URL中是否有OAuth授权码
-export const checkOAuthCallback = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
-  
-  // 检查是否有OAuth相关的参数
-  const oauthCode = urlParams.get('code') || hashParams.get('code');
-  const oauthState = urlParams.get('state') || hashParams.get('state');
-  const oauthError = urlParams.get('error') || hashParams.get('error');
-  
-  // 如果有OAuth错误参数，说明授权失败
-  if (oauthError) {
-    return {
-      isOAuthCallback: true,
-      hasError: true,
-      error: oauthError,
-      errorDescription: urlParams.get('error_description') || hashParams.get('error_description')
-    };
-  }
-  
-  // 如果有授权码，说明是OAuth回调
-  if (oauthCode && !urlParams.get('invite_code') && !hashParams.get('invite_code')) {
-    return {
-      isOAuthCallback: true,
-      hasError: false,
-      code: oauthCode,
-      state: oauthState
-    };
-  }
-  
-  return {
-    isOAuthCallback: false
-  };
-};
-
-// Telegram OAuth 登录
-export const getTelegramAuthHash = async () => {
+export function getTelegramCode() {
   return request({
     url: '/passport/oauth/telegram',
-    method: 'get'
+    method: 'get',
   });
-};
+}
 
-// 检查 Telegram 登录状态
-export const checkTelegramLoginStatus = async (hash) => {
+export function checkTelegram(data) {
   return request({
     url: '/passport/oauth/telegram/check',
     method: 'post',
-    data: { code: hash }
+    data
   });
-};
+}
 
-// 完成 Telegram 注册
-export const completeTelegramRegistration = async (hash, email) => {
+export function changeEmailReq(data) {
   return request({
-    url: '/passport/oauth/telegram/register',
+    url: '/passport/auth/changeEmail',
     method: 'post',
-    data: { 
-      code: hash, 
-      email: email 
-    }
+    data
   });
-}; 
+}
