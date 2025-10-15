@@ -297,6 +297,9 @@ export default {
         title: 'Node List',
         loading: 'Loading nodes...',
         noNodes: 'No nodes available',
+        noPlanTitle: 'You haven\'t purchased a plan yet',
+        noPlanDescription: 'Purchase a plan to view and use all available nodes',
+        buyPlan: 'Buy Plan Now',
         copiedToClipboard: 'Copied to clipboard',
         welcome: {
             title: 'Node List',

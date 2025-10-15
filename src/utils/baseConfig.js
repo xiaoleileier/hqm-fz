@@ -420,6 +420,9 @@ const DEFAULT_SHOP_CONFIG = {
     // 是否启用周期折扣计算显示 (true=启用, false=禁用)
     enableDiscountCalculation: true,
 
+    // 是否启用优惠券功能 (true=启用, false=禁用)
+    enableCoupons: true,
+
     // 价格周期的显示顺序（从大到小）
     periodOrder: [
         'three_year_price', // 三年

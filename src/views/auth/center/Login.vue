@@ -249,6 +249,8 @@ import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
 import { useRouter } from 'vue-router';
 
+import { useStore } from 'vuex';
+
 import { useI18n } from 'vue-i18n';
 
 import { useToast } from '@/composables/useToast';
@@ -320,6 +322,8 @@ export default {
   setup() {
 
     const router = useRouter();
+
+    const store = useStore();
 
     const { t } = useI18n();
 
@@ -423,8 +427,14 @@ export default {
             localStorage.setItem('oauth_redirect_to_profile', 'true');
           }
           
-          console.log('准备刷新页面');
-          window.location.reload();
+          // 触发Vuex状态更新
+          store.dispatch('login', token);
+          
+          // 延迟刷新页面，确保状态更新完成
+          setTimeout(() => {
+            console.log('准备刷新页面');
+            window.location.reload();
+          }, 100);
         } else {
           console.error('token 为空，无法完成登录');
         }

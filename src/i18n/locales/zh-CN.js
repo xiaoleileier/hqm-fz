@@ -324,6 +324,9 @@ export default {
         title: '节点列表',
         loading: '正在加载节点...',
         noNodes: '暂无可用节点',
+        noPlanTitle: '您还没有购买套餐',
+        noPlanDescription: '购买套餐后即可查看和使用所有可用节点',
+        buyPlan: '立即购买套餐',
         copiedToClipboard: '已复制到剪贴板',
         welcome: {
             title: '节点列表',

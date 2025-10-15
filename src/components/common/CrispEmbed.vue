@@ -79,15 +79,19 @@ export default {
 
     
 
+
     const initCrisp = async () => {
 
-      if (!CONFIG.value.enabled) return;
 
-      
+      if (!CONFIG.value.enabled) {
+        return;
+      }
+
 
       if (window.CRISP_INITIALIZED && crispInitialized.value) {
 
         try {
+
 
           updateCrispConfig();
 
@@ -95,7 +99,7 @@ export default {
 
         } catch (error) {
 
-          console.error('更新Crisp配置失败:', error);
+          console.error('❌ [Crisp] 更新Crisp配置失败:', error);
 
         }
 
@@ -109,16 +113,16 @@ export default {
 
         const websiteId = crispIdMatch ? crispIdMatch[1] : '';
 
+
         
 
         if (!websiteId) {
 
-          console.error('无法从配置中提取Crisp ID');
+          console.error('❌ [Crisp] 无法从配置中提取Crisp ID');
 
           return;
 
         }
-
 
 
         Crisp.configure(websiteId);
@@ -127,25 +131,19 @@ export default {
 
         if (isMobile.value) {
 
+
           Crisp.setPosition("right");
 
         } else {
 
+
           Crisp.setPosition("right");
 
         }
 
-        
-
-        if (store.getters.isLoggedIn) {
-
-          await fetchUserData();
-
-          setUserDataToCrisp();
-
-        }
 
         
+
 
         setCrispStyles();
 
@@ -155,11 +153,29 @@ export default {
 
         crispInitialized.value = true;
 
+
+        
+
+        // 在Crisp初始化完成后设置用户数据
+
+        if (store.getters.isLoggedIn) {
+
+
+          await fetchUserData();
+
+
+          setUserDataToCrisp();
+
+        } else {
+
+
+        }
+
         
 
       } catch (error) {
 
-        console.error('初始化Crisp客服系统失败:', error);
+        console.error('❌ [Crisp] 初始化Crisp客服系统失败:', error);
 
       }
 
@@ -223,9 +239,9 @@ export default {
 
                {
 
-                transform: translateY(-120px) !important;
+                transform: translateY(-80px) !important;
 
-                bottom: 120px !important;
+                bottom: 80px !important;
 
               }
 
@@ -262,7 +278,9 @@ export default {
 
     const fetchUserData = async () => {
 
+
       try {
+
 
         const [userInfoResponse, commConfigResponse, subscribeResponse] = await Promise.all([
 
@@ -274,9 +292,11 @@ export default {
 
         ]);
 
+
         
 
         userInfo.value = userInfoResponse.data ? userInfoResponse.data : userInfoResponse;
+
 
         
 
@@ -286,15 +306,18 @@ export default {
 
           currencySymbol.value = commConfigData.currency_symbol;
 
+
         }
 
         
 
         userSubscribe.value = subscribeResponse.data ? subscribeResponse.data : subscribeResponse;
 
+
+
       } catch (error) {
 
-        console.error('获取用户信息失败:', error);
+        console.error('❌ [Crisp] 获取用户信息失败:', error);
 
       }
 
@@ -304,7 +327,11 @@ export default {
 
     const setUserDataToCrisp = () => {
 
-      if (!crispInitialized.value) return;
+
+      if (!crispInitialized.value) {
+        return;
+      }
+
 
       
 
@@ -312,15 +339,21 @@ export default {
 
         let userEmail = extractUserEmail();
 
+
         
 
         if (userEmail) {
+
 
           Crisp.user.setEmail(userEmail);
 
           const nickname = userEmail.split('@')[0];
 
           Crisp.user.setNickname(nickname);
+
+
+        } else {
+
 
         }
 
@@ -334,6 +367,7 @@ export default {
 
         const balance = extractBalance();
 
+
         
 
         const sessionData = {
@@ -346,17 +380,19 @@ export default {
 
           Traffic: remainingGB + ' GB',
 
-          Balance: balance + ' ' + currencySymbol.value
+          Balance: balance.toFixed(2) + ' ' + currencySymbol.value
 
         };
+
 
         
 
         Crisp.session.setData(sessionData);
 
+
       } catch (error) {
 
-        console.error('设置Crisp用户数据失败:', error);
+        console.error('❌ [Crisp] 设置Crisp用户数据失败:', error);
 
       }
 
@@ -366,11 +402,13 @@ export default {
 
     const extractUserEmail = () => {
 
+
       let userEmail = '';
 
       
 
       if (userInfo.value) {
+
 
         if (typeof userInfo.value === 'object') {
 
@@ -378,9 +416,11 @@ export default {
 
             userEmail = userInfo.value.email;
 
+
           } else if (userInfo.value.data && userInfo.value.data.email) {
 
             userEmail = userInfo.value.data.email;
+
 
           }
 
@@ -392,15 +432,18 @@ export default {
 
       if (!userEmail && userSubscribe.value) {
 
+
         if (typeof userSubscribe.value === 'object') {
 
           if (userSubscribe.value.email) {
 
             userEmail = userSubscribe.value.email;
 
+
           } else if (userSubscribe.value.data && userSubscribe.value.data.email) {
 
             userEmail = userSubscribe.value.data.email;
+
 
           }
 
@@ -411,6 +454,7 @@ export default {
       
 
       if (!userEmail) {
+
 
         const storedUser = localStorage.getItem('user');
 
@@ -424,11 +468,12 @@ export default {
 
               userEmail = parsedUser.email;
 
+
             }
 
           } catch (e) {
 
-            console.error('解析localStorage用户数据失败:', e);
+            console.error('❌ [Crisp] 解析localStorage用户数据失败:', e);
 
           }
 
@@ -437,6 +482,7 @@ export default {
       }
 
       
+
 
       return userEmail;
 
@@ -610,6 +656,16 @@ export default {
 
       
 
+      // 如果余额大于100，可能是以"分"为单位，需要转换为"元"
+
+      if (balance > 100) {
+
+        balance = balance / 100;
+
+      }
+
+      
+
       return balance;
 
     };
@@ -654,11 +710,19 @@ export default {
 
     watch(() => store.getters.isLoggedIn, async (newVal) => {
 
+
       if (newVal && crispInitialized.value) {
+
 
         await fetchUserData();
 
         setUserDataToCrisp();
+
+      } else if (newVal && !crispInitialized.value) {
+
+
+      } else if (!newVal) {
+
 
       }
 
@@ -668,7 +732,9 @@ export default {
 
     onMounted(async () => {
 
+
       checkIfMobile();
+
 
       
 
@@ -677,6 +743,7 @@ export default {
       
 
       window.addEventListener('resize', handleResize);
+
 
       
 
@@ -762,20 +829,12 @@ export default {
 
 <style lang="scss" scoped>
 
-.crisp-embed-container {
-
-  
-
-}
+// Crisp客服系统容器样式
 
 
 
 
 
-:global() {
-
-  
-
-}
+// 全局样式
 
 </style> 

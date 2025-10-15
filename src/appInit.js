@@ -12,6 +12,9 @@ import { useToast } from './composables/useToast';
 import initPageTitle from './utils/exposeConfig';
 import { handleUnauthorizedDomain } from './utils/domainChecker';
 
+// 引入移动端缩放控制
+import './utils/preventMobileZoom.js';
+
 
 if (!handleUnauthorizedDomain()) {
   throw new Error('Unauthorized domain');

@@ -47,7 +47,7 @@ export const config  = {
 
     // 是否启用中间件代理API请求
     // 设置为true时，所有API请求将通过中间件转发
-    API_MIDDLEWARE_ENABLED: true,
+    API_MIDDLEWARE_ENABLED: false,
   
     //=======================================================
     // 中间件服务器URL (不含路径) 开源地址 https://github.com/codeman857/EZ-Encrypt-Middleware
@@ -547,7 +547,7 @@ export const config  = {
         presetAmounts: [1, 6, 30, 68, 128, 256, 328, 648, 1280],
 
         // 默认选中的充值金额（如果设为null则不预选金额）
-        defaultSelectedAmount: null,
+        defaultSelectedAmount: 1,
 
         // 最小充值金额（单位：元）
         minimumDepositAmount: 1
@@ -561,7 +561,7 @@ export const config  = {
         showCommissionBadge: true,
 
         // 返佣记录每页显示数量（最小值为10，API限制每次请求最少需要返回10条记录）
-        recordsPerPage: 10,
+        recordsPerPage: 20,
 
         // 邀请链接配置
         inviteLinkConfig: {

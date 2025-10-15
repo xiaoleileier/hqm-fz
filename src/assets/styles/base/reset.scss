@@ -66,6 +66,41 @@ input, button, textarea, select {
   font: inherit;
 }
 
+/* 防止移动端输入框焦点时页面缩放 */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    touch-action: manipulation;
+  }
+  
+  /* 防止iOS Safari自动缩放 */
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus,
+  input[type="search"]:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+    touch-action: manipulation;
+  }
+  
+  /* 为整个页面添加触摸控制 */
+  body {
+    touch-action: manipulation;
+  }
+}
+
 /* 响应式容器 */
 .container {
   width: 100%;

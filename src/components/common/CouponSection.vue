@@ -78,7 +78,7 @@
                 <div class="plan-info-enhanced" v-if="coupon.validPlans">
                   <div class="plan-label">
                     <IconTicket :size="14" />
-                    <span>适用套餐</span>
+                    <span>只适用以下套餐</span>
                   </div>
                   <div class="plan-tags">
                     <span 
@@ -96,7 +96,7 @@
                 <div class="time-info-enhanced" v-if="coupon.endDate">
                   <div class="time-label">
                     <IconAlertCircle :size="14" />
-                    <span>有效期</span>
+                    <span>有效期至</span>
                   </div>
                   <div class="time-content">
                     <div class="end-date-enhanced" :class="{ 'expired': isExpired(coupon) }">{{ formatDate(coupon.endDate) }}</div>
@@ -216,7 +216,7 @@ export default {
       if (!planIds || planIds.length === 0) return '所有套餐'
       
       const planNames = planIds.map(id => getPlanNameById(id))
-        return planNames.join('、')
+      return planNames.join(',') // 改为逗号分隔，便于后续分割
     }
     
     // 检查优惠券是否过期
@@ -269,11 +269,41 @@ export default {
     // 获取套餐标签样式类
     const getPlanTagClass = (plan) => {
       const planLower = plan.toLowerCase()
-      if (planLower.includes('基础') || planLower.includes('basic')) return 'plan-basic'
-      if (planLower.includes('标准') || planLower.includes('standard')) return 'plan-standard'
-      if (planLower.includes('高级') || planLower.includes('premium') || planLower.includes('pro')) return 'plan-premium'
-      if (planLower.includes('企业') || planLower.includes('enterprise')) return 'plan-enterprise'
-      return 'plan-default'
+      
+      // 根据套餐名称动态匹配样式
+      // 小份/基础套餐 - 绿色
+      if (planLower.includes('小份') || planLower.includes('基础') || planLower.includes('basic') || 
+          planLower.includes('starter') || planLower.includes('入门') || planLower.includes('mini')) {
+        return 'plan-small'
+      }
+      
+      // 中份/标准套餐 - 蓝色  
+      if (planLower.includes('中份') || planLower.includes('标准') || planLower.includes('standard') || 
+          planLower.includes('medium') || planLower.includes('普通') || planLower.includes('regular')) {
+        return 'plan-medium'
+      }
+      
+      // 大份/高级套餐 - 紫色
+      if (planLower.includes('大份') || planLower.includes('高级') || planLower.includes('premium') || 
+          planLower.includes('pro') || planLower.includes('large') || planLower.includes('plus') ||
+          planLower.includes('max') || planLower.includes('ultimate')) {
+        return 'plan-large'
+      }
+      
+      // 企业套餐 - 橙色
+      if (planLower.includes('企业') || planLower.includes('enterprise') || planLower.includes('business') ||
+          planLower.includes('corporate') || planLower.includes('vip')) {
+        return 'plan-enterprise'
+      }
+      
+      // 特殊套餐 - 红色
+      if (planLower.includes('特殊') || planLower.includes('special') || planLower.includes('exclusive') ||
+          planLower.includes('limited') || planLower.includes('限时')) {
+        return 'plan-special'
+      }
+      
+      // 默认样式 - 主题色渐变（适用于任何不匹配的套餐）
+      return 'plan-gradient'
     }
 
     // 获取时间紧迫性样式类
@@ -693,9 +723,34 @@ export default {
   }
   
   .coupon-card-enhanced {
-    flex: 0 0 350px; /* 移动端稍窄一些 */
-    min-width: 350px;
-    max-width: 350px;
+    flex: 0 0 90vw; /* 使用视口宽度，确保卡片完整显示 */
+    min-width: 90vw;
+    max-width: 90vw;
+    padding: 20px; /* 减少内边距 */
+    gap: 16px; /* 减少间距 */
+  }
+  
+  /* 调整网格容器，确保卡片间距合适 */
+  .coupon-grid-new {
+    padding: 16px 5vw 8px 5vw; /* 左右使用视口单位，确保卡片完整显示 */
+    gap: 10px; /* 减少卡片间距 */
+  }
+  
+  /* 超小屏幕适配 */
+  @media (max-width: 480px) {
+    .coupon-card-enhanced {
+      flex: 0 0 85vw; /* 超小屏幕使用85%视口宽度 */
+      min-width: 85vw;
+      max-width: 85vw;
+      padding: 16px; /* 进一步减少内边距 */
+      gap: 12px; /* 进一步减少间距 */
+    }
+    
+    /* 调整网格容器内边距 */
+    .coupon-grid-new {
+      padding: 12px 16px 8px 16px; /* 减少左右内边距 */
+      gap: 12px; /* 减少卡片间距 */
+    }
   }
   
   /* 移动端滚动条样式 */
@@ -1577,7 +1632,7 @@ body.dark-theme .coupon-section-new {
 .plan-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 4px; /* 从8px减少到4px */
 }
 
 .plan-tag {
@@ -1595,33 +1650,76 @@ body.dark-theme .coupon-section-new {
 }
 
 .plan-basic {
-  background: rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
   color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .plan-standard {
-  background: rgba(34, 197, 94, 0.15);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
   color: #16a34a;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
 }
 
 .plan-premium {
-  background: rgba(168, 85, 247, 0.15);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.1) 100%);
   color: #a855f7;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
 }
 
 .plan-enterprise {
-  background: rgba(245, 158, 11, 0.15);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
   color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+/* 套餐样式 - 根据套餐类型动态应用 */
+.plan-small {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.plan-medium {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.plan-large {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.1) 100%);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
+}
+
+/* 特殊套餐样式 */
+.plan-special {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+/* 更美观的默认样式 */
+.plan-gradient {
+  background: linear-gradient(135deg, rgba(213, 149, 218, 0.2) 0%, rgba(213, 149, 218, 0.1) 100%);
+  color: #d595da;
+  border: 1px solid rgba(213, 149, 218, 0.4);
+  box-shadow: 0 2px 8px rgba(213, 149, 218, 0.2);
 }
 
 .plan-default {
-  background: rgba(107, 114, 128, 0.15);
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.2) 0%, rgba(107, 114, 128, 0.1) 100%);
   color: #6b7280;
-  border: 1px solid rgba(107, 114, 128, 0.3);
+  border: 1px solid rgba(107, 114, 128, 0.4);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.2);
 }
 
 /* 时间信息增强版 */
@@ -1743,7 +1841,7 @@ body.dark-theme .coupon-section-new {
   }
   
   .plan-tags {
-    gap: 6px;
+    gap: 3px; /* 从6px减少到3px */
   }
   
   .plan-tag {
